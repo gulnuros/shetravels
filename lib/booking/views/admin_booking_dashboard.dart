@@ -602,7 +602,7 @@ class _AdminBookingDashboardScreenState
     bool isMobile,
   ) {
     final data = doc.data() as Map<String, dynamic>;
-    final email = data['email'] ?? 'Unknown';
+    final email = data['userEmail'] ?? 'Unknown';
     final eventName = data['eventName'] ?? 'Unknown Event';
     final amount = (data['amount'] ?? 0) / 100;
     final timestamp = data['timestamp']?.toDate();
@@ -881,7 +881,7 @@ class _AdminBookingDashboardScreenState
             final data = doc.data() as Map<String, dynamic>;
             final eventName =
                 (data['eventName'] ?? '').toString().toLowerCase();
-            final email = (data['email'] ?? '').toString().toLowerCase();
+            final email = (data['userEmail'] ?? '').toString().toLowerCase();
             return eventName.contains(_searchQuery) ||
                 email.contains(_searchQuery);
           }).toList();
@@ -929,7 +929,7 @@ class _AdminBookingDashboardScreenState
         final timestamp = data['timestamp']?.toDate();
         rows.add([
           data['eventName'] ?? 'Unknown',
-          data['email'] ?? 'Unknown',
+          data['userEmail'] ?? 'Unknown',
           data['userId'] ?? 'Unknown',
           ((data['amount'] ?? 0) / 100).toStringAsFixed(2),
           timestamp != null ? DateFormat('yyyy-MM-dd').format(timestamp) : '',

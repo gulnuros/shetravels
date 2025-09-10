@@ -605,16 +605,15 @@ Widget buildTestimonialCard(Testimonial t) {
     ),
   );
 }
-
 Widget buildTestimonialSection(BuildContext context) {
   final screenWidth = MediaQuery.of(context).size.width;
-
+  
   // Card width adapts to screen size
-  double cardWidth = screenWidth * 0.7; // takes 70% width on small devices
+  double cardWidth = screenWidth * 0.8; // Increased for better mobile experience
   if (screenWidth > 1200) {
     cardWidth = 400; // fixed max width for desktop
   } else if (screenWidth > 800) {
-    cardWidth = 300; // medium size for tablets
+    cardWidth = 320; // medium size for tablets
   }
 
   return Column(
@@ -624,70 +623,201 @@ Widget buildTestimonialSection(BuildContext context) {
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Text(
           "What Travellers Say",
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: screenWidth > 600 ? 28 : 24,
+            fontWeight: FontWeight.bold,
+          ),
           textAlign: TextAlign.center,
         ),
       ),
       SizedBox(
-        height: 260,
+        height: 280, // Increased height slightly
         child: StreamBuilder<List<Testimonial>>(
           stream: TestimonialRepository.getTestimonialsStream(),
-          builder: (
-            BuildContext context,
-            AsyncSnapshot<List<Testimonial>> snapshot,
-          ) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 3, // Number of shimmer placeholders
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: Shimmer.fromColors(
-                      baseColor: Colors.grey.shade300,
-                      highlightColor: Colors.grey.shade100,
-                      child: Container(
-                        width: cardWidth,
-                        height: 220,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
+          builder: (context, snapshot) {
+            // Debug information
+            print('Connection State: ${snapshot.connectionState}');
+            print('Has Data: ${snapshot.hasData}');
+            print('Has Error: ${snapshot.hasError}');
+            if (snapshot.hasData) {
+              print('Data Length: ${snapshot.data!.length}');
+            }
+            if (snapshot.hasError) {
+              print('Error: ${snapshot.error}');
             }
 
+            // Handle error state
+            if (snapshot.hasError) {
+              return _buildErrorWidget(context, cardWidth, snapshot.error.toString());
+            }
+
+            // Key fix: Only show shimmer if we're waiting AND don't have data yet
+            // Firestore streams often stay in 'active' state, not 'done'
+            if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+              return _buildShimmerLoading(cardWidth);
+            }
+
+            // Show empty state if no data
             if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(
-                child: Text(
-                  "No testimonials yet.",
-                  style: TextStyle(color: Colors.grey),
-                ),
-              );
+              // If we're still connecting for the first time, show shimmer briefly
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return _buildShimmerLoading(cardWidth);
+              }
+              return _buildEmptyState(context, cardWidth);
             }
 
-            final List<Testimonial> testimonials = snapshot.data!;
-            return ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: testimonials.length,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: SizedBox(
-                    width: cardWidth,
-                    child: buildTestimonialCard(testimonials[index]),
-                  ),
-                );
-              },
-            );
+            // Show actual data
+            final testimonials = snapshot.data!;
+            return _buildTestimonialsList(testimonials, cardWidth);
           },
         ),
       ),
     ],
+  );
+}
+
+// Extracted shimmer loading widget
+Widget _buildShimmerLoading(double cardWidth) {
+  return ListView.builder(
+    scrollDirection: Axis.horizontal,
+    itemCount: 3,
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    itemBuilder: (context, index) {
+      return Padding(
+        padding: const EdgeInsets.only(right: 16),
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey.shade300,
+          highlightColor: Colors.grey.shade100,
+          child: Container(
+            width: cardWidth,
+            height: 220,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+// Enhanced empty state
+Widget _buildEmptyState(BuildContext context, double cardWidth) {
+  return Center(
+    child: Container(
+      width: cardWidth,
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.chat_bubble_outline,
+            size: 48,
+            color: Colors.grey.shade400,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "No testimonials yet",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Be the first to share your experience!",
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+// Enhanced error state
+Widget _buildErrorWidget(BuildContext context, double cardWidth, String error) {
+  return Center(
+    child: Container(
+      width: cardWidth,
+      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.red.shade200),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: Colors.red.shade600,
+            size: 48,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "Failed to load testimonials",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.red.shade700,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Please check your connection",
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.red.shade600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () {
+              // Force rebuild to retry
+              if (context.mounted) {
+                (context as Element).markNeedsBuild();
+              }
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text("Retry"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade600,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+// Extracted testimonials list
+Widget _buildTestimonialsList(List<Testimonial> testimonials, double cardWidth) {
+  return ListView.builder(
+    scrollDirection: Axis.horizontal,
+    itemCount: testimonials.length,
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    physics: const BouncingScrollPhysics(), // Better scrolling on mobile
+    itemBuilder: (context, index) {
+      return Padding(
+        padding: EdgeInsets.only(
+          right: index == testimonials.length - 1 ? 16 : 20,
+        ),
+        child: SizedBox(
+          width: cardWidth,
+          child: buildTestimonialCard(testimonials[index]),
+        ),
+      );
+    },
   );
 }

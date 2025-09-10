@@ -14,10 +14,8 @@ import 'package:shetravels/common/view/widgets/upcoming_event.dart';
 import 'package:shetravels/common/view/widgets/why_she_travel.dart';
 import 'package:shetravels/explore_tour/explore_tour_screen.dart';
 import 'package:shetravels/gallery/views/gallery.dart';
-import 'package:shetravels/main.dart';
 import 'package:shetravels/memories_section.dart';
 import 'package:shetravels/she_travel_web.dart';
-import 'package:shetravels/testimonial/testimonial.dart';
 import 'package:shetravels/utils/route.gr.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
@@ -569,7 +567,7 @@ Navigator.of(context).pop();
           SizedBox(width: 20),
           _navItem("Connect", 'connect'),
           GestureDetector(
-            onTap: () => context.router.push(SignupRoute()),
+            onTap: () => context.router.push(LoginRoute()),
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               margin: EdgeInsets.all(15),
@@ -580,7 +578,7 @@ Navigator.of(context).pop();
 
               child: Center(
                 child: Text(
-                  "Sign Up",
+                  "Login",
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 16,

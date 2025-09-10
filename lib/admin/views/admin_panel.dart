@@ -395,6 +395,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     final descController = TextEditingController();
     final locationController = TextEditingController();
     final priceController = TextEditingController();
+        final availableSlots= TextEditingController();
 
     Uint8List? imageBytes;
     String? imagePath;
@@ -684,6 +685,10 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                                   location: locationController.text.trim(),
                                   price: priceInCents,
                                   imageUrl: imageUrl!,
+                               availableSlots: availableSlots.text.isEmpty
+                                      ? 1
+                                      : int.parse(availableSlots.text, 
+                                ),
                                 );
 
                                 Navigator.pop(context);

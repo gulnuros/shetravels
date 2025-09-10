@@ -12,4 +12,9 @@ class RouteString {
   static const String manageEvent = '/manage-event';
   static const String adminBookingDashboard = '/admin-booking';
   static const String adminTestimonial = '/admin-testimonial';
+  static const String cancel = '/cancel';
+  static const String success = '/success';
 }
+
+
+const String pleaseAcceptTermsAndCondition = 'Please accept the terms and conditions to continue';

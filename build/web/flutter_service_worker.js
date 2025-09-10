@@ -3,11 +3,11 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"flutter_bootstrap.js": "b55acd51e6ecdd2e69a2f282e475f687",
+const RESOURCES = {"flutter_bootstrap.js": "ca92684fe76fe3159112844e8f7e8320",
 "version.json": "6f6d24d01da3f63cce69e49884179cd4",
 "index.html": "dbb4ee345e93606da050ebf212b8c7ef",
 "/": "dbb4ee345e93606da050ebf212b8c7ef",
-"main.dart.js": "c2bf096696175e4cfd29d25faec8fea6",
+"main.dart.js": "d6d2f1fb2e35fd519d173bb702e6feb1",
 "flutter.js": "76f08d47ff9f5715220992f993002504",
 "favicon.png": "fb5c47da7e27784364b0eee6479d67eb",
 "icons/favicon.ico": "2e75aa8e5d8916cfbeb24c8e69f63386",
@@ -27,7 +27,7 @@ const RESOURCES = {"flutter_bootstrap.js": "b55acd51e6ecdd2e69a2f282e475f687",
 "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "33b7d9392238c04c131b6ce224e13711",
 "assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
 "assets/AssetManifest.bin": "9571cf55dc9417445cd9e3b24b69e147",
-"assets/fonts/MaterialIcons-Regular.otf": "b7f7af3ebb604890e75455af0428cace",
+"assets/fonts/MaterialIcons-Regular.otf": "f4d68a7c55bea9570e94d452870ecefd",
 "assets/assets/hike_5.jpeg": "0968151e063ae1b6563136f68be563c1",
 "assets/assets/she_travel.png": "2dd12ba2657812dc31d62b7ec88f84c3",
 "assets/assets/past3.webp": "b79e6467e16b47c2d78f4b505671cfb8",

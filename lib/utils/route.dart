@@ -28,8 +28,9 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: AdminBookingDashboardRoute.page, path: RouteString.adminBookingDashboard),
  
         AutoRoute(page: AddTestimonialRoute.page, path: RouteString.adminTestimonial),
+      AutoRoute(page: PaymentSuccessRoute.page, path: RouteString.success),
  
-    //
-    
+      AutoRoute(page: PaymentCancelRoute.page, path: RouteString.cancel),
+
   ];
 }
