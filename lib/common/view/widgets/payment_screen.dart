@@ -17,7 +17,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     });
 
     try {
-      // 1. Call your Firebase function to create the PaymentIntent
       final url = Uri.parse(
         'https://us-central1-shetravels-ac34a.cloudfunctions.net/createPaymentIntent',
       );
@@ -49,18 +48,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
       // 3. Present the payment sheet
       await Stripe.instance.presentPaymentSheet();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Payment successful')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Payment successfully')));
     } on StripeException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Payment cancelled')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Payment cancelled')));
     } catch (e) {
       print('Payment error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Payment failed')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Payment failed')));
     } finally {
       setState(() {
         _loading = false;
@@ -73,12 +72,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return Scaffold(
       appBar: AppBar(title: Text('Stripe Payment')),
       body: Center(
-        child: _loading
-            ? CircularProgressIndicator()
-            : ElevatedButton(
-                onPressed: _makePayment,
-                child: Text('Pay \$10'),
-              ),
+        child:
+            _loading
+                ? CircularProgressIndicator()
+                : ElevatedButton(
+                  onPressed: _makePayment,
+                  child: Text('Pay \$10'),
+                ),
       ),
     );
   }
