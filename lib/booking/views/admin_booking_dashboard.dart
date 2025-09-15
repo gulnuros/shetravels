@@ -1,12 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:csv/csv.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
+import 'package:shetravels/booking/views/admin_booking_widgets.dart';
 
 @RoutePage()
 class AdminBookingDashboardScreen extends StatefulWidget {
@@ -26,6 +22,17 @@ class _AdminBookingDashboardScreenState
   String _selectedFilter = 'All';
   bool _isExporting = false;
   List<QueryDocumentSnapshot> _allBookings = [];
+
+  // Track updating status for each booking
+  Map<String, bool> _updatingStatus = {};
+
+  Future<void> _handleExport() async {
+    setState(() => _isExporting = true);
+
+    await exportBookingsToCSV(_allBookings, context);
+
+    setState(() => _isExporting = false);
+  }
 
   @override
   void initState() {
@@ -49,6 +56,40 @@ class _AdminBookingDashboardScreenState
     super.dispose();
   }
 
+  // Function to update payment status
+  Future<void> _updatePaymentStatus(String bookingId, String newStatus) async {
+    setState(() {
+      _updatingStatus[bookingId] = true;
+    });
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('bookings')
+          .doc(bookingId)
+          .update({'status': newStatus});
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Payment status updated to $newStatus'),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update status: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      setState(() {
+        _updatingStatus[bookingId] = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
@@ -61,8 +102,7 @@ class _AdminBookingDashboardScreenState
         .orderBy('timestamp', descending: true);
 
     return Scaffold(
-      body: 
-      Container(
+      body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -90,32 +130,36 @@ class _AdminBookingDashboardScreenState
                 ),
                 child: _buildModernHeader(isMobile),
               ),
-          
+
               // Search and Filter Bar
               _buildSearchAndFilterBar(isMobile),
-          
+
               // Content Area - FIXED: Added Expanded wrapper
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: bookingsRef.snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
-                      return _buildErrorState();
+                      return buildErrorState();
                     }
-          
+
                     if (!snapshot.hasData) {
                       return _buildLoadingState();
                     }
-          
+
                     final docs = snapshot.data!.docs;
                     _allBookings = docs;
-          
-                    final filteredDocs = _filterBookings(docs);
-          
+
+                    final filteredDocs = filterBookings(
+                      docs,
+                      _searchQuery,
+                      _selectedFilter,
+                    );
+
                     if (filteredDocs.isEmpty) {
-                      return _buildEmptyState();
+                      return buildEmptyState(_searchQuery);
                     }
-          
+
                     return _buildBookingsList(filteredDocs, isMobile, isTablet);
                   },
                 ),
@@ -126,7 +170,10 @@ class _AdminBookingDashboardScreenState
       ),
 
       // Floating Action Button for Export
-      floatingActionButton: _buildExportFAB(),
+      floatingActionButton: buildExportFAB(
+        isExporting: _isExporting,
+        onPressed: _handleExport,
+      ),
     );
   }
 
@@ -443,114 +490,6 @@ class _AdminBookingDashboardScreenState
     );
   }
 
-  Widget _buildErrorState() {
-    return Center(
-      child: Container(
-        margin: const EdgeInsets.all(32),
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.red.withOpacity(0.1),
-              blurRadius: 10,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.red.shade100,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.error_outline,
-                size: 48,
-                color: Colors.red.shade600,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Error Loading Data',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Please check your connection and try again',
-              style: TextStyle(color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Container(
-        margin: const EdgeInsets.all(10),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              blurRadius: 10,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.blue.shade100, Colors.indigo.shade100],
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.event_seat,
-                size: 20,
-                color: Colors.indigo,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'No Bookings Found',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.indigo,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _searchQuery.isEmpty
-                  ? 'No bookings available yet'
-                  : 'Try adjusting your search or filters',
-              style: const TextStyle(color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildBookingsList(
     List<QueryDocumentSnapshot> docs,
     bool isMobile,
@@ -577,7 +516,7 @@ class _AdminBookingDashboardScreenState
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 1.2,
+        childAspectRatio: 1.0, // Adjusted to accommodate status dropdown
       ),
       itemCount: docs.length,
       itemBuilder: (context, index) {
@@ -607,6 +546,9 @@ class _AdminBookingDashboardScreenState
     final amount = (data['amount'] ?? 0) / 100;
     final timestamp = data['timestamp']?.toDate();
     final userId = data['userId'] ?? 'Unknown';
+    final status = data['status'] ?? 'pending';
+    final bookingId = doc.id;
+    final isUpdating = _updatingStatus[bookingId] ?? false;
 
     return AnimatedContainer(
       duration: Duration(milliseconds: 300 + (index * 100)),
@@ -641,28 +583,39 @@ class _AdminBookingDashboardScreenState
                       _buildUserInfoSection(email, userId),
                       const SizedBox(height: 12),
                       _buildAmountAndDateSection(amount, timestamp),
+                      const SizedBox(height: 12),
+                      _buildStatusSection(status, bookingId, isUpdating),
                     ],
                   )
-                  : IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: _buildEventNameSection(eventName),
+                  : Column(
+                    children: [
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: _buildEventNameSection(eventName),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              flex: 2,
+                              child: _buildUserInfoSection(email, userId),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              flex: 2,
+                              child: _buildAmountAndDateSection(
+                                amount,
+                                timestamp,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          flex: 2,
-                          child: _buildUserInfoSection(email, userId),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          flex: 2,
-                          child: _buildAmountAndDateSection(amount, timestamp),
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildStatusSection(status, bookingId, isUpdating),
+                    ],
                   ),
         ),
       ),
@@ -826,186 +779,127 @@ class _AdminBookingDashboardScreenState
     );
   }
 
-  Widget _buildExportFAB() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.orange.shade400, Colors.deepOrange.shade600],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.orange.withOpacity(0.4),
-            blurRadius: 12,
-            spreadRadius: 2,
-            offset: const Offset(0, 6),
+  Widget _buildStatusSection(String status, String bookingId, bool isUpdating) {
+    final statusOptions = ['pending', 'paid', 'failed', 'refunded'];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.orange.shade100,
+            borderRadius: BorderRadius.circular(8),
           ),
-        ],
-      ),
-      child: FloatingActionButton.extended(
-        onPressed:
-            _isExporting ? null : () => _exportBookingsToCSV(_allBookings),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        icon:
-            _isExporting
-                ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          child: Text(
+            "PAYMENT STATUS",
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: Colors.orange.shade700,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: _getStatusColor(status).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: _getStatusColor(status).withOpacity(0.3),
+              width: 1,
+            ),
+          ),
+          child:
+              isUpdating
+                  ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            _getStatusColor(status),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Updating...',
+                        style: TextStyle(
+                          color: _getStatusColor(status),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  )
+                  : DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: status,
+                      isDense: true,
+                      style: TextStyle(
+                        color: _getStatusColor(status),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      onChanged: (String? newStatus) {
+                        if (newStatus != null && newStatus != status) {
+                          _updatePaymentStatus(bookingId, newStatus);
+                        }
+                      },
+                      items:
+                          statusOptions.map<DropdownMenuItem<String>>((
+                            String value,
+                          ) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: _getStatusColor(value),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    value.toUpperCase(),
+                                    style: TextStyle(
+                                      color: _getStatusColor(value),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                    ),
                   ),
-                )
-                : const Icon(Icons.file_download, color: Colors.white),
-        label: Text(
-          _isExporting ? "Exporting..." : "Export CSV",
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
         ),
-      ),
+      ],
     );
   }
 
-  List<QueryDocumentSnapshot> _filterBookings(
-    List<QueryDocumentSnapshot> docs,
-  ) {
-    List<QueryDocumentSnapshot> filtered = docs;
-
-    // Apply search filter
-    if (_searchQuery.isNotEmpty) {
-      filtered =
-          filtered.where((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            final eventName =
-                (data['eventName'] ?? '').toString().toLowerCase();
-            final email = (data['userEmail'] ?? '').toString().toLowerCase();
-            return eventName.contains(_searchQuery) ||
-                email.contains(_searchQuery);
-          }).toList();
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'paid':
+        return Colors.green;
+      case 'pending':
+        return Colors.orange;
+      case 'failed':
+        return Colors.red;
+      case 'refunded':
+        return Colors.blue;
+      default:
+        return Colors.grey;
     }
-
-    // Apply date filter
-    if (_selectedFilter != 'All') {
-      final now = DateTime.now();
-      filtered =
-          filtered.where((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            final timestamp = data['timestamp']?.toDate();
-            if (timestamp == null) return false;
-
-            switch (_selectedFilter) {
-              case 'Today':
-                return timestamp.year == now.year &&
-                    timestamp.month == now.month &&
-                    timestamp.day == now.day;
-              case 'This Week':
-                final weekStart = now.subtract(Duration(days: now.weekday - 1));
-                return timestamp.isAfter(weekStart);
-              case 'This Month':
-                return timestamp.year == now.year &&
-                    timestamp.month == now.month;
-              default:
-                return true;
-            }
-          }).toList();
-    }
-
-    return filtered;
-  }
-
-  Future<void> _exportBookingsToCSV(List<QueryDocumentSnapshot> docs) async {
-    setState(() => _isExporting = true);
-
-    try {
-      List<List<dynamic>> rows = [
-        ['Event Name', 'User Email', 'User ID', 'Amount (USD)', 'Date', 'Time'],
-      ];
-
-      for (var doc in docs) {
-        final data = doc.data() as Map<String, dynamic>;
-        final timestamp = data['timestamp']?.toDate();
-        rows.add([
-          data['eventName'] ?? 'Unknown',
-          data['userEmail'] ?? 'Unknown',
-          data['userId'] ?? 'Unknown',
-          ((data['amount'] ?? 0) / 100).toStringAsFixed(2),
-          timestamp != null ? DateFormat('yyyy-MM-dd').format(timestamp) : '',
-          timestamp != null ? DateFormat('HH:mm:ss').format(timestamp) : '',
-        ]);
-      }
-
-      String csvData = const ListToCsvConverter().convert(rows);
-
-      if (kIsWeb) {
-        // For web, download the file
-        _downloadCSVWeb(csvData);
-      } else {
-        // For mobile, save to device
-        await _saveCSVMobile(csvData);
-      }
-
-      _showSuccessSnackBar('Bookings exported successfully!');
-    } catch (e) {
-      _showErrorSnackBar('Export failed: $e');
-    } finally {
-      setState(() => _isExporting = false);
-    }
-  }
-
-  void _downloadCSVWeb(String csvData) {
-    // Web download implementation would go here
-    // This is a placeholder for the web download logic
-    print("✅ CSV prepared for web download");
-  }
-
-  Future<void> _saveCSVMobile(String csvData) async {
-    if (await Permission.storage.request().isGranted) {
-      final directory = await getExternalStorageDirectory();
-      final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-      final file = File('${directory!.path}/bookings_$timestamp.csv');
-      await file.writeAsString(csvData);
-      print("✅ Exported to ${file.path}");
-    } else {
-      throw Exception('Storage permission denied');
-    }
-  }
-
-  void _showSuccessSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Colors.green.shade600,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
-  }
-
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Colors.red.shade600,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
   }
 }
