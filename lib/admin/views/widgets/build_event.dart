@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:shetravels/admin/data/controller/event_controller.dart';
 import 'package:shetravels/admin/data/event_model.dart';
 import 'package:shetravels/common/data/provider/payment_provider.dart';
 
@@ -9,6 +10,7 @@ Widget buildEventDetails(
   required bool isMobile,
   required WidgetRef ref,
   required BuildContext context,
+  required EventDashboardNotifier eventManager,
 }) {
   final paymentNotifier = ref.watch(paymentNotifierProvider);
 
@@ -122,6 +124,16 @@ Widget buildEventDetails(
               overflow: TextOverflow.ellipsis,
             ),
           ],
+          SizedBox(height: 10),
+
+          ElevatedButton(
+            onPressed: () {
+              ref.watch(eventManagerDashboardProvider).isLoading
+                  ? null
+                  : eventManager.showEditDialog(context, event, ref);
+            },
+            child: Text('Edit'),
+          ),
         ],
       );
     },

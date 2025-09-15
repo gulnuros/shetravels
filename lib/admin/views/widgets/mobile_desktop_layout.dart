@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shetravels/admin/data/controller/event_controller.dart';
 import 'package:shetravels/admin/data/event_model.dart';
 import 'package:shetravels/admin/views/widgets/build_event.dart';
 
 /// Mobile: stacked layout
-Widget buildMobileLayout(Event event, BuildContext context, WidgetRef ref) {
+Widget buildMobileLayout(
+  Event event,
+  BuildContext context,
+  WidgetRef ref,
+  EventDashboardNotifier eventManager,
+) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -16,6 +22,7 @@ Widget buildMobileLayout(Event event, BuildContext context, WidgetRef ref) {
           isMobile: true,
           context: context,
           ref: ref,
+          eventManager: eventManager,
         ),
       ),
     ],
@@ -23,7 +30,12 @@ Widget buildMobileLayout(Event event, BuildContext context, WidgetRef ref) {
 }
 
 /// Desktop/Tablet: side-by-side layout
-Widget buildDesktopLayout(Event event, BuildContext context, WidgetRef ref) {
+Widget buildDesktopLayout(
+  Event event,
+  BuildContext context,
+  WidgetRef ref,
+  EventDashboardNotifier eventManager,
+) {
   return Row(
     children: [
       Expanded(flex: 2, child: _buildEventImage(event)),
@@ -36,6 +48,7 @@ Widget buildDesktopLayout(Event event, BuildContext context, WidgetRef ref) {
             isMobile: false,
             context: context,
             ref: ref,
+            eventManager: eventManager,
           ),
         ),
       ),
@@ -101,7 +114,13 @@ Widget _buildEventImage(Event event) {
   );
 }
 
-Widget buildEventCard(Event event, int index, BuildContext context, WidgetRef ref) {
+Widget buildEventCard(
+  Event event,
+  int index,
+  BuildContext context,
+  WidgetRef ref,
+  EventDashboardNotifier eventManager,
+) {
   final size = MediaQuery.of(context).size;
   final isMobile = size.width < 600;
 
@@ -132,67 +151,57 @@ Widget buildEventCard(Event event, int index, BuildContext context, WidgetRef re
         borderRadius: BorderRadius.circular(24),
         child:
             isMobile
-                ? buildMobileLayout(event, context, ref)
-                : buildDesktopLayout(event, context, ref),
+                ? buildMobileLayout(event, context, ref, eventManager)
+                : buildDesktopLayout(event, context, ref, eventManager),
       ),
     ),
   );
 }
 
-
-
-
-  Widget buildStatCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withOpacity(0.2)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: Colors.white, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+Widget buildStatCard(String title, String value, IconData icon, Color color) {
+  return Expanded(
+    child: Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
       ),
-    );
-  }
-
-
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: Colors.white, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}

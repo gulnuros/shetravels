@@ -199,15 +199,16 @@ StatefulBuilder createOrEditDialog(
                                     // 🆕 Price and Slots in a Row
                                     Row(
                                       children: [
-                                        Expanded(
-                                          child: buildModernTextField(
-                                            controller: priceController,
-                                            label: "Price (USD)",
-                                            icon: Icons.attach_money,
-                                            hint: "0.00",
-                                            keyboardType: TextInputType.number,
-                                          ),
-                                        ),
+                                       Expanded(
+  child: buildModernTextField(
+    controller: priceController,
+    label: "Price",
+    icon: Icons.attach_money,
+    hint: "CAD 0.00", // shows currency in hint
+    keyboardType: TextInputType.number,
+  ),
+),
+
                                         const SizedBox(width: 16),
                                         Expanded(
                                           child: buildModernTextField(

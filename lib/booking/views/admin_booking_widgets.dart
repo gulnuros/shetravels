@@ -109,8 +109,8 @@ Future<void> exportBookingsToCSV(
 ) async {
   try {
     List<List<dynamic>> rows = [
-      ['Event Name', 'User Email', 'User ID', 'Amount (USD)', 'Date', 'Time'],
-    ];
+       ['Event Name', 'User Email', 'User ID', 'Amount (CAD)', 'Date', 'Time'],
+   ];
 
     for (var doc in docs) {
       final data = doc.data() as Map<String, dynamic>;

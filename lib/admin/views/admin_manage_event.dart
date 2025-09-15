@@ -141,6 +141,7 @@ class _AdminManageEventScreenState extends ConsumerState<AdminManageEventScreen>
                                             index,
                                             context,
                                             ref,
+                                            eventManager,
                                           ),
                                     )
                                     : ListView.builder(
@@ -151,6 +152,7 @@ class _AdminManageEventScreenState extends ConsumerState<AdminManageEventScreen>
                                             index,
                                             context,
                                             ref,
+                                            eventManager,
                                           ),
                                     ),
                           ),

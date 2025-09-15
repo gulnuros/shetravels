@@ -281,7 +281,7 @@ Future<void> addEvent(Event event, BuildContext context) async {
           animation,
           isEditing,
           titleController,
-          existingEvent, // 👈 safe nullable pass
+          existingEvent, 
           dateController,
           locationController,
           priceController,
