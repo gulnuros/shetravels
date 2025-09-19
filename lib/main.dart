@@ -7,7 +7,8 @@ import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  stp.Stripe.publishableKey = 'pk_test_51Ro4rt4PEU7g7vAIEniFRppWPZVviCtkyRqWpmzCuQKk3aHgFmvLzAWEU27pTPDkj2gCX0UPLVqwEcUBiEVGqZ1r00XHc6VPoN';
+  stp.Stripe.publishableKey =
+      'pk_test_51Ro4rt4PEU7g7vAIEniFRppWPZVviCtkyRqWpmzCuQKk3aHgFmvLzAWEU27pTPDkj2gCX0UPLVqwEcUBiEVGqZ1r00XHc6VPoN';
   await stp.Stripe.instance.applySettings();
   await Firebase.initializeApp(
     options: FirebaseOptions(
@@ -18,8 +19,6 @@ void main() async {
       storageBucket: "shetravels-ac34a.firebasestorage.app",
     ),
   );
-
-
 
   runApp(const ProviderScope(child: SheTravelApp()));
 }

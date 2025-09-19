@@ -1,13 +1,13 @@
 import 'dart:ui';
 
 import 'package:animate_do/animate_do.dart';
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shetravels/admin/data/controller/event_controller.dart';
+import 'package:shetravels/admin/data/event_model.dart';
 import 'package:shetravels/common/view/widgets/build_founder_section.dart';
 import 'package:shetravels/common/view/widgets/hero_video.dart';
 import 'package:shetravels/common/view/widgets/upcoming_event.dart';
@@ -16,6 +16,7 @@ import 'package:shetravels/explore_tour/explore_tour_screen.dart';
 import 'package:shetravels/gallery/views/gallery.dart';
 import 'package:shetravels/landing_page/widgets/auth_login_button.dart';
 import 'package:shetravels/memories_section.dart';
+import 'package:shetravels/news_letter/views/widgets/news_letter_widgets.dart';
 import 'package:shetravels/she_travel_web.dart';
 import 'package:shetravels/utils/route.gr.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -34,9 +35,9 @@ class _LandingPageWebState extends ConsumerState<LandingPageWeb> {
     super.initState();
     // Delay showing popup to allow widget tree to build completely
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !_hasShownPopup) {
-        _checkAndShowUpcomingEventsPopup();
-      }
+      // if (mounted && !_hasShownPopup) {
+      //   _checkAndShowUpcomingEventsPopup();
+      // }
     });
   }
 
@@ -383,7 +384,7 @@ class _LandingPageWebState extends ConsumerState<LandingPageWeb> {
           onPressed: () {
             if (mounted) {
               Navigator.of(context).pop();
-           //   _navigateToEvents();
+              _scrollToSection('tours');
             }
           },
           child: Row(
@@ -415,15 +416,14 @@ Navigator.of(context).pop();
     }
   }
 
-  String? _getEventImageUrl(dynamic event) {
+  String? _getEventImageUrl(Event event) {
     if (event == null) return null;
-    return event.imageUrl?.toString() ?? event.image?.toString();
+    return event.imageUrl?.toString() ?? '';
   }
 
-  String _getEventTitle(dynamic event) {
+  String _getEventTitle(Event event) {
     if (event == null) return "Upcoming Event";
-    return event.title?.toString() ??
-        event.name?.toString() ??
+    return event.title?.toString() ?? ''
         "Upcoming Event";
   }
 
@@ -494,12 +494,7 @@ Navigator.of(context).pop();
                   child: buildWhyChooseSheTravelsSection(),
                 ),
 
-                // _buildSection(
-                //   key: 'tours',
-                //   child: UpcomingTours(),
-
-                //   // _buildUpcomingTours()
-                // ),
+              
                 _buildSection(
                   key: 'upcoming',
                   child: FadeInUp(
@@ -586,7 +581,7 @@ Navigator.of(context).pop();
 
               child: Center(
                 child: Text(
-                  "Explore Tours",
+                  "Explore Trips",
                   style: GoogleFonts.poppins(
                     color: Colors.pink.shade100,
                     fontSize: 16,
@@ -678,39 +673,21 @@ Navigator.of(context).pop();
                   SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                    
+                   
                       GestureDetector(
                         onTap:
-                            () => launchUrl(
-                              Uri.parse("https://shetravel.com/apply"),
-                            ),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 30,
-                            vertical: 15,
-                          ),
-                          margin: EdgeInsets.all(15),
-                          decoration: BoxDecoration(
-                            color: Colors.pink.shade100,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "Hike schedule",
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap:
-                            () => launchUrl(
-                              Uri.parse("https://shetravel.com/apply"),
-                            ),
+                            (){
+                                 print('This is the dialog');
+                          showDialog(
+                          context: context,
+                          builder: (context) => NewsletterSubscriptionDialog(),
+                          );
+                              print('This is the dialog2');
+                        
+                            },
                         child: Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 30,
@@ -737,6 +714,7 @@ Navigator.of(context).pop();
                           ),
                         ),
                       ),
+                 
                     ],
                   ),
                 ],

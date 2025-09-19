@@ -13,6 +13,7 @@ import 'package:shetravels/common/view/widgets/why_she_travel.dart';
 import 'package:shetravels/explore_tour/explore_tour_screen.dart';
 import 'package:shetravels/gallery/views/gallery.dart';
 import 'package:shetravels/memories_section.dart';
+import 'package:shetravels/news_letter/views/widgets/news_letter_widgets.dart';
 import 'package:shetravels/she_travel_web.dart';
 import 'package:shetravels/upcoming_tour.dart';
 import 'package:shetravels/utils/route.gr.dart';
@@ -35,9 +36,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
     super.initState();
     // Delay showing popup to allow widget tree to build completely
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !_hasShownPopup) {
-        _checkAndShowUpcomingEventsPopup();
-      }
+      
     });
   }
 
@@ -682,10 +681,14 @@ Navigator.of(context).pop();
                   ),
                   SizedBox(height: 24),
                   GestureDetector(
-                    onTap:
-                        () => launchUrl(
-                          Uri.parse("https://instagram.com/invisible_guide"),
-                        ),
+                     onTap: () {
+                          print('This is the dialog');
+                          showDialog(
+                          context: context,
+                          builder: (context) => NewsletterSubscriptionDialog(),
+                          );
+                              print('This is the dialog2');
+                        },
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 30,
@@ -734,7 +737,7 @@ Navigator.of(context).pop();
                       ),
                       child: Center(
                         child: Text(
-                          "Explore Tours",
+                          "Explore Trips",
                           style: GoogleFonts.poppins(
                             color: Colors.pink.shade100,
                             fontSize: 16,

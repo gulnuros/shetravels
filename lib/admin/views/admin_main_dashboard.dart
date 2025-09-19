@@ -7,6 +7,7 @@ import 'package:shetravels/admin/views/admin_manage_event.dart';
 import 'package:shetravels/admin/views/admin_memories_page.dart';
 import 'package:shetravels/booking/views/admin_booking_dashboard.dart';
 import 'package:shetravels/common/view/widgets/founder_admin_page.dart';
+import 'package:shetravels/news_letter/views/admin_dashboard_news_letter/admin_dashboard_news_letter.dart';
 import 'package:shetravels/testimonial/views/admin_manage_testimonial_page.dart';
 import 'package:shetravels/utils/helpers.dart';
 import 'package:shetravels/utils/route.gr.dart';
@@ -59,6 +60,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
     NavigationItem(
       icon: Icons.person_2,
       label: 'Review',
+      color: const Color(0xFF4ecdc4),
+    ),
+      NavigationItem(
+      icon: Icons.newspaper_outlined,
+      label: 'News Letter',
       color: const Color(0xFF4ecdc4),
     ),
   ];
@@ -648,6 +654,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
 
       case 5: // Message from founder
         return AdminManageTestimonialsPage();
+      //
+
+        case 6: // Message from founder
+        return AdminNewsletterDashboard();
       //
       default:
         return _buildDefaultContent();

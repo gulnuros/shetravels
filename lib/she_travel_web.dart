@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shetravels/admin/data/controller/event_controller.dart';
 import 'package:shetravels/admin/data/event_model.dart';
-import 'package:shetravels/common/data/models/upcoming_tour_2.dart';
 import 'package:shetravels/testimonial/data/model/testimonial.dart';
 import 'package:shimmer/shimmer.dart';
 

@@ -35,7 +35,7 @@ class _ExploreToursScreenState extends State<ExploreToursScreen> {
     final isWideScreen = MediaQuery.of(context).size.width > 600;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Explore Tours"),
+        title: const Text("Explore Trips"),
         backgroundColor: Colors.pink.shade100,
         centerTitle: true,
         elevation: 0,
