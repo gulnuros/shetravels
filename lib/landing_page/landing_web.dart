@@ -29,7 +29,7 @@ class LandingPageWeb extends StatefulHookConsumerWidget {
 }
 
 class _LandingPageWebState extends ConsumerState<LandingPageWeb> {
-  bool _hasShownPopup = false;
+  //bool _hasShownPopup = false;
   @override
   void initState() {
     super.initState();
@@ -41,21 +41,21 @@ class _LandingPageWebState extends ConsumerState<LandingPageWeb> {
     });
   }
 
-  void _checkAndShowUpcomingEventsPopup() {
-    if (!mounted || _hasShownPopup) return;
+  // void _checkAndShowUpcomingEventsPopup() {
+  //   if (!mounted || _hasShownPopup) return;
 
-    final eventAsync = ref.read(upcomingEventsProvider);
+  //   final eventAsync = ref.read(upcomingEventsProvider);
 
-    // Listen to the provider state
-    eventAsync.whenOrNull(
-      data: (events) {
-        if (events != null && events.isNotEmpty && mounted && !_hasShownPopup) {
-          _hasShownPopup = true;
-          _showUpcomingEventsPopup(events.first);
-        }
-      },
-    );
-  }
+  //   // Listen to the provider state
+  //   eventAsync.whenOrNull(
+  //     data: (events) {
+  //       if (events != null && events.isNotEmpty && mounted && !_hasShownPopup) {
+  //         _hasShownPopup = true;
+  //         _showUpcomingEventsPopup(events.first);
+  //       }
+  //     },
+  //   );
+  // }
 
   void _showUpcomingEventsPopup(dynamic event) {
     if (!mounted) return;
@@ -461,22 +461,22 @@ Navigator.of(context).pop();
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue>(upcomingEventsProvider, (previous, next) {
-      if (!_hasShownPopup && mounted) {
-        next.whenOrNull(
-          data: (events) {
-            if (events != null && events.isNotEmpty) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted && !_hasShownPopup) {
-                  _hasShownPopup = true;
-                  _showUpcomingEventsPopup(events.first);
-                }
-              });
-            }
-          },
-        );
-      }
-    });
+    // ref.listen<AsyncValue>(upcomingEventsProvider, (previous, next) {
+    //   if (!_hasShownPopup && mounted) {
+    //     next.whenOrNull(
+    //       data: (events) {
+    //         if (events != null && events.isNotEmpty) {
+    //           WidgetsBinding.instance.addPostFrameCallback((_) {
+    //             if (mounted && !_hasShownPopup) {
+    //               _hasShownPopup = true;
+    //               _showUpcomingEventsPopup(events.first);
+    //             }
+    //           });
+    //         }
+    //       },
+    //     );
+    //   }
+    // });
 
     return Scaffold(
       body: LayoutBuilder(

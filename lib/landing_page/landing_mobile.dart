@@ -474,22 +474,24 @@ Navigator.of(context).pop();
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue>(upcomingEventsProvider, (previous, next) {
-      if (!_hasShownPopup && mounted) {
-        next.whenOrNull(
-          data: (events) {
-            if (events != null && events.isNotEmpty) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted && !_hasShownPopup) {
-                  _hasShownPopup = true;
-                  _showUpcomingEventsPopup(events.first);
-                }
-              });
-            }
-          },
-        );
-      }
-    });
+    // ref.listen<AsyncValue>(upcomingEventsProvider, (previous, next) {
+    //   if (!_hasShownPopup && mounted) {
+    //     next.whenOrNull(
+    //       data: (events) {
+    //         if (events != null && events.isNotEmpty) {
+    //           WidgetsBinding.instance.addPostFrameCallback((_) {
+    //             if (mounted && !_hasShownPopup) {
+    //               _hasShownPopup = true;
+    //               _showUpcomingEventsPopup(events.first);
+    //             }
+    //           });
+    //         }
+    //       },
+    //     );
+    //   }
+    // });
+
+
 
     const String assetName = 'assets/she_travel.svg';
     final Widget svg = SvgPicture.asset(
