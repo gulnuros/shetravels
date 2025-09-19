@@ -10,6 +10,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:auto_route/auto_route.dart' as _i16;
+import 'package:flutter/material.dart' as _i17;
 import 'package:shetravels/admin/views/admin_gallery.dart' as _i4;
 import 'package:shetravels/admin/views/admin_login.dart' as _i5;
 import 'package:shetravels/admin/views/admin_main_dashboard.dart' as _i3;
@@ -221,18 +222,52 @@ class PaymentCancelRoute extends _i16.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i13.PaymentSuccessScreen]
-class PaymentSuccessRoute extends _i16.PageRouteInfo<void> {
-  const PaymentSuccessRoute({List<_i16.PageRouteInfo>? children})
-    : super(PaymentSuccessRoute.name, initialChildren: children);
+class PaymentSuccessRoute extends _i16.PageRouteInfo<PaymentSuccessRouteArgs> {
+  PaymentSuccessRoute({
+    _i17.Key? key,
+    required String eventName,
+    List<_i16.PageRouteInfo>? children,
+  }) : super(
+         PaymentSuccessRoute.name,
+         args: PaymentSuccessRouteArgs(key: key, eventName: eventName),
+         initialChildren: children,
+       );
 
   static const String name = 'PaymentSuccessRoute';
 
   static _i16.PageInfo page = _i16.PageInfo(
     name,
     builder: (data) {
-      return const _i13.PaymentSuccessScreen();
+      final args = data.argsAs<PaymentSuccessRouteArgs>();
+      return _i13.PaymentSuccessScreen(
+        key: args.key,
+        eventName: args.eventName,
+      );
     },
   );
+}
+
+class PaymentSuccessRouteArgs {
+  const PaymentSuccessRouteArgs({this.key, required this.eventName});
+
+  final _i17.Key? key;
+
+  final String eventName;
+
+  @override
+  String toString() {
+    return 'PaymentSuccessRouteArgs{key: $key, eventName: $eventName}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! PaymentSuccessRouteArgs) return false;
+    return key == other.key && eventName == other.eventName;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ eventName.hashCode;
 }
 
 /// generated route for
