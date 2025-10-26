@@ -1,10 +1,11 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 @RoutePage()
 class PaymentSuccessScreen extends ConsumerStatefulWidget {
   final String eventName;
@@ -21,7 +22,8 @@ class PaymentSuccessScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<PaymentSuccessScreen> createState() => _PaymentSuccessScreenState();
+  ConsumerState<PaymentSuccessScreen> createState() =>
+      _PaymentSuccessScreenState();
 }
 
 class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
@@ -33,17 +35,18 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
+  StreamSubscription<DocumentSnapshot>? _bookingListener;
 
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize animations
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -51,7 +54,7 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
       parent: _animationController,
       curve: Curves.elasticOut,
     ));
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -61,128 +64,191 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
     ));
 
     // Start the update process
-    _updateBookingStatus();
+    _verifyAndUpdateBooking();
   }
 
   @override
   void dispose() {
+    _bookingListener?.cancel();
     _animationController.dispose();
     super.dispose();
   }
 
+  Future<void> _verifyAndUpdateBooking() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
 
-Future<void> _updateBookingStatus() async {
-  try {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) throw Exception('User not authenticated');
+      // Find booking ID
+      String? bookingId = widget.bookingId;
+      if (bookingId == null || bookingId.isEmpty) {
+        bookingId = await _findBookingId(user.uid);
+      }
 
-    String? bookingId = widget.bookingId ?? await _findBookingId(user.uid);
-    if (bookingId == null) throw Exception('Booking not found');
+      if (bookingId == null) {
+        throw Exception('Booking not found');
+      }
 
-    // Wait a few seconds to allow webhook to update
-    await Future.delayed(const Duration(seconds: 3));
+      // Listen to booking status changes (webhook might update it)
+      _listenToBookingStatus(bookingId);
 
-    final docRef = FirebaseFirestore.instance.collection('bookings').doc(bookingId);
-    final bookingSnap = await docRef.get();
+      // Wait briefly for webhook to update
+      await Future.delayed(const Duration(seconds: 2));
 
-    if (!bookingSnap.exists) throw Exception('Booking record not found');
+      // Check if webhook already updated the status
+      final docRef =
+          FirebaseFirestore.instance.collection('bookings').doc(bookingId);
+      final bookingSnap = await docRef.get();
 
-    final data = bookingSnap.data()!;
-    _bookingDetails = data;
+      if (!bookingSnap.exists) {
+        throw Exception('Booking record not found');
+      }
 
-    if (data['status'] == 'paid') {
-      // Already updated by webhook
+      final data = bookingSnap.data()!;
+
+      if (data['status'] == 'paid') {
+        // Already paid by webhook
+        _handleSuccessfulBooking(data);
+        return;
+      }
+
+      // Webhook hasn't updated yet, update manually
+      await _updateBookingToPaid(docRef, data);
+    } catch (e) {
+      debugPrint('❌ Error verifying booking: $e');
       setState(() {
         _isUpdating = false;
-        _updateSuccess = true;
+        _updateSuccess = false;
+        _errorMessage = e.toString();
       });
-      _animationController.forward();
-      return;
     }
+  }
 
-    // Webhook hasn’t updated yet, so update manually
-    final updateData = {
-      'status': 'paid',
-      'stripeStatus': widget.sessionId != null
-          ? 'checkout_session_completed'
-          : 'payment_intent_succeeded',
-      'paidAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-      'confirmedBySuccessScreen': true,
-    };
+  void _listenToBookingStatus(String bookingId) {
+    _bookingListener = FirebaseFirestore.instance
+        .collection('bookings')
+        .doc(bookingId)
+        .snapshots()
+        .listen((snapshot) {
+      if (!mounted) return;
 
-    await docRef.update(updateData);
+      if (snapshot.exists) {
+        final data = snapshot.data()!;
+        if (data['status'] == 'paid' && !_updateSuccess) {
+          debugPrint('✅ Booking updated by webhook');
+          _handleSuccessfulBooking(data);
+        }
+      }
+    });
+  }
+
+  Future<void> _updateBookingToPaid(
+    DocumentReference docRef,
+    Map<String, dynamic> currentData,
+  ) async {
+    try {
+      final updateData = {
+        'status': 'paid',
+        'stripeStatus': widget.sessionId != null
+            ? 'checkout_session_completed'
+            : 'payment_intent_succeeded',
+        if (widget.sessionId != null) 'stripeSessionId': widget.sessionId,
+        if (widget.paymentIntentId != null)
+          'stripePaymentIntentId': widget.paymentIntentId,
+        'paidAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+        'confirmedByClient': true,
+      };
+
+      await docRef.update(updateData);
+
+      debugPrint('✅ Booking manually updated to paid');
+
+      _handleSuccessfulBooking({...currentData, ...updateData});
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text('Booking confirmed successfully!'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ Error updating booking: $e');
+      throw Exception('Failed to update booking: $e');
+    }
+  }
+
+  void _handleSuccessfulBooking(Map<String, dynamic> bookingData) {
+    if (!mounted) return;
 
     setState(() {
       _isUpdating = false;
       _updateSuccess = true;
-      _bookingDetails = {...data, ...updateData};
+      _bookingDetails = bookingData;
+      _errorMessage = null;
     });
 
     _animationController.forward();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Booking confirmed successfully!'),
-          backgroundColor: Colors.green.shade600,
-        ),
-      );
-    }
-  } catch (e) {
-    setState(() {
-      _isUpdating = false;
-      _updateSuccess = false;
-      _errorMessage = e.toString();
-    });
   }
-}
-
 
   Future<String?> _findBookingId(String userId) async {
     try {
-      // Search for recent pending/unpaid bookings for this user and event
-      final querySnapshot = await FirebaseFirestore.instance
+      debugPrint('🔍 Searching for booking for user: $userId');
+
+      // First, try to find pending bookings
+      final pendingQuery = await FirebaseFirestore.instance
           .collection('bookings')
           .where('userId', isEqualTo: userId)
           .where('eventName', isEqualTo: widget.eventName)
           .where('status', whereIn: ['pending', 'processing'])
-          .orderBy('timestamp', descending: true)
+          .orderBy('createdAt', descending: true)
           .limit(1)
           .get();
 
-      if (querySnapshot.docs.isNotEmpty) {
-        return querySnapshot.docs.first.id;
+      if (pendingQuery.docs.isNotEmpty) {
+        final bookingId = pendingQuery.docs.first.id;
+        debugPrint('✅ Found pending booking: $bookingId');
+        return bookingId;
       }
 
-      // If no pending booking, check for recent bookings (maybe already paid by webhook)
-      final recentBookings = await FirebaseFirestore.instance
+      // If no pending, check for recent bookings (within last 10 minutes)
+      final tenMinutesAgo = DateTime.now().subtract(const Duration(minutes: 10));
+
+      final recentQuery = await FirebaseFirestore.instance
           .collection('bookings')
           .where('userId', isEqualTo: userId)
           .where('eventName', isEqualTo: widget.eventName)
-          .orderBy('timestamp', descending: true)
+          .where('createdAt', isGreaterThan: Timestamp.fromDate(tenMinutesAgo))
+          .orderBy('createdAt', descending: true)
           .limit(1)
           .get();
 
-      if (recentBookings.docs.isNotEmpty) {
-        final recentBooking = recentBookings.docs.first;
-        final data = recentBooking.data();
-        
-        // Check if booking was created recently (within last 10 minutes)
-        final timestamp = data['timestamp'] as Timestamp?;
-        if (timestamp != null) {
-          final bookingTime = timestamp.toDate();
-          final now = DateTime.now();
-          final difference = now.difference(bookingTime).inMinutes;
-          
-          if (difference <= 10) {
-            return recentBooking.id;
-          }
-        }
+      if (recentQuery.docs.isNotEmpty) {
+        final bookingId = recentQuery.docs.first.id;
+        debugPrint('✅ Found recent booking: $bookingId');
+        return bookingId;
       }
 
+      debugPrint('❌ No booking found');
       return null;
     } catch (e) {
-      debugPrint('Error finding booking ID: $e');
+      debugPrint('❌ Error finding booking: $e');
       return null;
     }
   }
@@ -191,40 +257,61 @@ Future<void> _updateBookingStatus() async {
     if (error.contains('not authenticated')) {
       return 'Please log in and try again';
     } else if (error.contains('not found')) {
-      return 'Booking record not found';
+      return 'Booking record not found. Your payment was successful, please contact support.';
     } else if (error.contains('permission')) {
-      return 'Access denied. Please contact support';
+      return 'Access denied. Please contact support with your booking details.';
     } else {
-      return 'Something went wrong. Please contact support';
+      return 'Something went wrong. Your payment was successful, please contact support.';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        title: Text(
-          "Payment Status",
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            color: Colors.grey.shade800,
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent going back if update is in progress
+        if (_isUpdating) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please wait while we confirm your booking'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade50,
+        appBar: AppBar(
+          title: Text(
+            "Payment Status",
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade800,
+            ),
           ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          iconTheme: IconThemeData(color: Colors.grey.shade800),
+          leading: _isUpdating
+              ? null
+              : IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Colors.grey.shade800),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              Expanded(
-                child: _buildContent(),
-              ),
-              _buildActionButton(),
-            ],
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              children: [
+                Expanded(
+                  child: _buildContent(),
+                ),
+                _buildActionButton(),
+              ],
+            ),
           ),
         ),
       ),
@@ -269,11 +356,21 @@ Future<void> _updateBookingStatus() async {
         ),
         const SizedBox(height: 16),
         Text(
-          "Please wait while we update your booking status",
+          "Please wait while we verify your payment",
           style: GoogleFonts.poppins(
             fontSize: 16,
             color: Colors.grey.shade600,
             height: 1.5,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "This usually takes a few seconds",
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.grey.shade500,
+            fontStyle: FontStyle.italic,
           ),
           textAlign: TextAlign.center,
         ),
@@ -282,156 +379,164 @@ Future<void> _updateBookingStatus() async {
   }
 
   Widget _buildSuccessState() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ScaleTransition(
-          scale: _scaleAnimation,
-          child: Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.green.shade50,
-              border: Border.all(color: Colors.green.shade100, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.green.withOpacity(0.2),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Icon(
-              Icons.check_circle,
-              color: Colors.green.shade600,
-              size: 80,
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 40),
+          ScaleTransition(
+            scale: _scaleAnimation,
+            child: Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.green.shade50,
+                border: Border.all(color: Colors.green.shade100, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green.withOpacity(0.2),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.check_circle,
+                color: Colors.green.shade600,
+                size: 80,
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 32),
-        FadeTransition(
-          opacity: _fadeAnimation,
-          child: Column(
-            children: [
-              Text(
-                "Booking Confirmed!",
-                style: GoogleFonts.poppins(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade800,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                "You've successfully booked",
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  color: Colors.grey.shade600,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(25),
-                  color: Colors.pink.shade50,
-                  border: Border.all(color: Colors.pink.shade100),
-                ),
-                child: Text(
-                  widget.eventName,
+          const SizedBox(height: 32),
+          FadeTransition(
+            opacity: _fadeAnimation,
+            child: Column(
+              children: [
+                Text(
+                  "Booking Confirmed!",
                   style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.pink.shade700,
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade800,
                   ),
                   textAlign: TextAlign.center,
                 ),
-              ),
-              if (_bookingDetails != null) ...[
-                const SizedBox(height: 24),
-                _buildBookingDetails(),
+                const SizedBox(height: 16),
+                Text(
+                  "You've successfully booked",
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: Colors.grey.shade600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25),
+                    color: Colors.pink.shade50,
+                    border: Border.all(color: Colors.pink.shade100),
+                  ),
+                  child: Text(
+                    widget.eventName,
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.pink.shade700,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                if (_bookingDetails != null) ...[
+                  const SizedBox(height: 24),
+                  _buildBookingDetails(),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildErrorState() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(32),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.red.shade50,
-            border: Border.all(color: Colors.red.shade100, width: 2),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 40),
+          Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.orange.shade50,
+              border: Border.all(color: Colors.orange.shade100, width: 2),
+            ),
+            child: Icon(
+              Icons.info_outline,
+              color: Colors.orange.shade600,
+              size: 80,
+            ),
           ),
-          child: Icon(
-            Icons.error_outline,
-            color: Colors.red.shade600,
-            size: 80,
+          const SizedBox(height: 32),
+          Text(
+            "Payment Successful",
+            style: GoogleFonts.poppins(
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade800,
+            ),
+            textAlign: TextAlign.center,
           ),
-        ),
-        const SizedBox(height: 32),
-        Text(
-          "Booking Update Failed",
-          style: GoogleFonts.poppins(
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey.shade800,
+          const SizedBox(height: 16),
+          Text(
+            _errorMessage != null
+                ? _getReadableError(_errorMessage!)
+                : "We're still processing your booking",
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              color: Colors.grey.shade600,
+              height: 1.5,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          _errorMessage != null 
-              ? _getReadableError(_errorMessage!)
-              : "We couldn't confirm your booking automatically",
-          style: GoogleFonts.poppins(
-            fontSize: 16,
-            color: Colors.grey.shade600,
-            height: 1.5,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 24),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: Colors.blue.shade50,
-            border: Border.all(color: Colors.blue.shade200),
-          ),
-          child: Column(
-            children: [
-              Icon(Icons.info_outline, color: Colors.blue.shade600, size: 24),
-              const SizedBox(height: 8),
-              Text(
-                "Don't worry! Your payment was successful. Please contact support with your booking details.",
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: Colors.blue.shade700,
-                  height: 1.4,
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.blue.shade50,
+              border: Border.all(color: Colors.blue.shade200),
+            ),
+            child: Column(
+              children: [
+                Icon(Icons.check_circle_outline,
+                    color: Colors.blue.shade600, size: 24),
+                const SizedBox(height: 8),
+                Text(
+                  "Your payment was successful! The booking will be confirmed shortly. You can check your booking status in your account.",
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.blue.shade700,
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildBookingDetails() {
     final booking = _bookingDetails!;
     final amount = booking['amount'] as int? ?? 0;
-    final currency = booking['currency'] as String? ?? 'CAD';
-    
+    final currency = (booking['currency'] as String? ?? 'CAD').toUpperCase();
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -459,7 +564,8 @@ Future<void> _updateBookingStatus() async {
           ),
           const SizedBox(height: 12),
           _buildDetailRow("Event", widget.eventName),
-          _buildDetailRow("Amount", "\$${(amount / 100).toStringAsFixed(2)} $currency"),
+          _buildDetailRow(
+              "Amount", "\$${(amount / 100).toStringAsFixed(2)} $currency"),
           _buildDetailRow("Status", "Confirmed", isStatus: true),
           if (booking['userEmail'] != null)
             _buildDetailRow("Email", booking['userEmail']),
@@ -470,7 +576,7 @@ Future<void> _updateBookingStatus() async {
 
   Widget _buildDetailRow(String label, String value, {bool isStatus = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -488,7 +594,8 @@ Future<void> _updateBookingStatus() async {
           Expanded(
             child: isStatus
                 ? Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       color: Colors.green.shade100,
@@ -519,28 +626,21 @@ Future<void> _updateBookingStatus() async {
   Widget _buildActionButton() {
     return Column(
       children: [
-        if (_isUpdating || _errorMessage != null) ...[
+        if (_errorMessage != null && !_isUpdating) ...[
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: _isUpdating
-                  ? null
-                  : () {
-                      setState(() {
-                        _isUpdating = true;
-                        _errorMessage = null;
-                      });
-                      _updateBookingStatus();
-                    },
-              icon: _isUpdating
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Icon(Icons.refresh),
+              onPressed: () {
+                setState(() {
+                  _isUpdating = true;
+                  _errorMessage = null;
+                  _updateSuccess = false;
+                });
+                _verifyAndUpdateBooking();
+              },
+              icon: const Icon(Icons.refresh),
               label: Text(
-                _isUpdating ? "Updating..." : "Retry Update",
+                "Try Again",
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -562,7 +662,9 @@ Future<void> _updateBookingStatus() async {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: () => Navigator.popUntil(context, (r) => r.isFirst),
+            onPressed: _isUpdating
+                ? null
+                : () => Navigator.popUntil(context, (r) => r.isFirst),
             icon: const Icon(Icons.home_outlined),
             label: Text(
               "Back to Home",
@@ -572,7 +674,8 @@ Future<void> _updateBookingStatus() async {
               ),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: _updateSuccess ? Colors.green.shade600 : Colors.grey.shade600,
+              backgroundColor:
+                  _updateSuccess ? Colors.green.shade600 : Colors.grey.shade600,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
