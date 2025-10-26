@@ -41,22 +41,6 @@ class _LandingPageWebState extends ConsumerState<LandingPageWeb> {
     });
   }
 
-  // void _checkAndShowUpcomingEventsPopup() {
-  //   if (!mounted || _hasShownPopup) return;
-
-  //   final eventAsync = ref.read(upcomingEventsProvider);
-
-  //   // Listen to the provider state
-  //   eventAsync.whenOrNull(
-  //     data: (events) {
-  //       if (events != null && events.isNotEmpty && mounted && !_hasShownPopup) {
-  //         _hasShownPopup = true;
-  //         _showUpcomingEventsPopup(events.first);
-  //       }
-  //     },
-  //   );
-  // }
-
   void _showUpcomingEventsPopup(dynamic event) {
     if (!mounted) return;
 

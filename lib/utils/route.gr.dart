@@ -226,10 +226,19 @@ class PaymentSuccessRoute extends _i16.PageRouteInfo<PaymentSuccessRouteArgs> {
   PaymentSuccessRoute({
     _i17.Key? key,
     required String eventName,
+    String? bookingId,
+    String? sessionId,
+    String? paymentIntentId,
     List<_i16.PageRouteInfo>? children,
   }) : super(
          PaymentSuccessRoute.name,
-         args: PaymentSuccessRouteArgs(key: key, eventName: eventName),
+         args: PaymentSuccessRouteArgs(
+           key: key,
+           eventName: eventName,
+           bookingId: bookingId,
+           sessionId: sessionId,
+           paymentIntentId: paymentIntentId,
+         ),
          initialChildren: children,
        );
 
@@ -242,32 +251,56 @@ class PaymentSuccessRoute extends _i16.PageRouteInfo<PaymentSuccessRouteArgs> {
       return _i13.PaymentSuccessScreen(
         key: args.key,
         eventName: args.eventName,
+        bookingId: args.bookingId,
+        sessionId: args.sessionId,
+        paymentIntentId: args.paymentIntentId,
       );
     },
   );
 }
 
 class PaymentSuccessRouteArgs {
-  const PaymentSuccessRouteArgs({this.key, required this.eventName});
+  const PaymentSuccessRouteArgs({
+    this.key,
+    required this.eventName,
+    this.bookingId,
+    this.sessionId,
+    this.paymentIntentId,
+  });
 
   final _i17.Key? key;
 
   final String eventName;
 
+  final String? bookingId;
+
+  final String? sessionId;
+
+  final String? paymentIntentId;
+
   @override
   String toString() {
-    return 'PaymentSuccessRouteArgs{key: $key, eventName: $eventName}';
+    return 'PaymentSuccessRouteArgs{key: $key, eventName: $eventName, bookingId: $bookingId, sessionId: $sessionId, paymentIntentId: $paymentIntentId}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! PaymentSuccessRouteArgs) return false;
-    return key == other.key && eventName == other.eventName;
+    return key == other.key &&
+        eventName == other.eventName &&
+        bookingId == other.bookingId &&
+        sessionId == other.sessionId &&
+        paymentIntentId == other.paymentIntentId;
   }
 
   @override
-  int get hashCode => key.hashCode ^ eventName.hashCode;
+  int get hashCode =>
+      key.hashCode ^
+      eventName.hashCode ^
+      bookingId.hashCode ^
+      sessionId.hashCode ^
+      paymentIntentId.hashCode;
 }
 
 /// generated route for

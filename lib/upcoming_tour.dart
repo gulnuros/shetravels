@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shetravels/admin/data/controller/event_controller.dart';
+import 'package:shetravels/admin/data/event_model.dart';
 import 'package:shetravels/auth/views/screens/login_screen.dart';
 import 'package:shetravels/common/data/provider/payment_provider.dart';
+
 class UpcomingTours extends StatefulHookConsumerWidget {
   const UpcomingTours({super.key});
 
@@ -16,7 +18,7 @@ class _UpcomingToursState extends ConsumerState<UpcomingTours> {
   Widget _buildActionButton({
     required BuildContext context,
     required String userId,
-    required dynamic event,
+    required Event event,
   }) {
     final paymentProvider = ref.watch(paymentNotifierProvider);
 

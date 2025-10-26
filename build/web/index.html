@@ -55,7 +55,7 @@
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
-    <script>
+    <!-- <script>
     window.addEventListener("load", function (ev) {
       // Download main.dart.js
       _flutter.loader.loadEntrypoint({
@@ -70,6 +70,20 @@
       });
     });
 
-  </script>
+  </script> -->
+
+
+
+<script>
+  window.addEventListener('load', function(ev) {
+    _flutter.loader.loadEntrypoint({
+      serviceWorker: {
+        serviceWorkerVersion: serviceWorkerVersion,
+      }
+    });
+  });
+</script>
+
+
 </body>
 </html>

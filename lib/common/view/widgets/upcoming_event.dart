@@ -6,6 +6,7 @@ import 'package:shetravels/admin/data/event_model.dart';
 import 'package:shetravels/common/data/provider/payment_provider.dart';
 
 import 'dart:ui';
+
 Widget buildUpcomingEventsSection(WidgetRef ref) {
   return Container(
     decoration: BoxDecoration(
