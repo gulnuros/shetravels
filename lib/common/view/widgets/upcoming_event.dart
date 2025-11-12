@@ -592,11 +592,13 @@ Widget _buildEventCard(Event event, WidgetRef ref, BuildContext context) {
                                     ? null
                                     : () async {
                                         try {
-                                          await paymentProvider.pay(
-                                            context: context,
-                                            amount: event.price,
-                                            eventName: event.title,
-                                          );
+                                       await paymentProvider.pay(
+  context: context,
+  amount: event.price,
+  eventName: event.title,
+);
+ref.refresh(upcomingEventsProvider);
+
                                         } catch (e) {
                                           // Handle payment error
                                           ScaffoldMessenger.of(context).showSnackBar(

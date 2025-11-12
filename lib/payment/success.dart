@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shetravels/admin/data/controller/event_controller.dart';
 
 @RoutePage()
 class PaymentSuccessScreen extends ConsumerStatefulWidget {
@@ -32,12 +33,12 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
   bool _paymentConfirmed = false;
   String? _errorMessage;
   Map<String, dynamic>? _bookingDetails;
-  
+
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
-  
+
   StreamSubscription<DocumentSnapshot>? _bookingListener;
   Timer? _timeoutTimer;
   int _retryCount = 0;
@@ -59,24 +60,15 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
     );
 
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.elasticOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
 
     _slideAnimation = Tween<double>(begin: 50.0, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
   }
 
@@ -129,7 +121,7 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
       final bookingRef = FirebaseFirestore.instance
           .collection('bookings')
           .doc(bookingId);
-      
+
       final bookingSnap = await bookingRef.get();
 
       if (!bookingSnap.exists) {
@@ -166,21 +158,21 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
         .doc(bookingId)
         .snapshots()
         .listen(
-      (snapshot) {
-        if (!mounted || !_isVerifying) return;
+          (snapshot) {
+            if (!mounted || !_isVerifying) return;
 
-        if (snapshot.exists) {
-          final data = snapshot.data();
-          if (data != null && data['status'] == 'paid') {
-            debugPrint('🎉 Booking status updated to paid (real-time)');
-            _handlePaymentSuccess(data);
-          }
-        }
-      },
-      onError: (error) {
-        debugPrint('❌ Booking listener error: $error');
-      },
-    );
+            if (snapshot.exists) {
+              final data = snapshot.data();
+              if (data != null && data['status'] == 'paid') {
+                debugPrint('🎉 Booking status updated to paid (real-time)');
+                _handlePaymentSuccess(data);
+              }
+            }
+          },
+          onError: (error) {
+            debugPrint('❌ Booking listener error: $error');
+          },
+        );
   }
 
   Future<String?> _findRecentBooking(String userId) async {
@@ -188,18 +180,22 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
       debugPrint('🔍 Searching for recent booking for user: $userId');
 
       // Search for recent bookings (last 15 minutes)
-      final fifteenMinutesAgo = DateTime.now()
-          .subtract(const Duration(minutes: 15));
+      final fifteenMinutesAgo = DateTime.now().subtract(
+        const Duration(minutes: 15),
+      );
 
-      final query = await FirebaseFirestore.instance
-          .collection('bookings')
-          .where('userId', isEqualTo: userId)
-          .where('eventName', isEqualTo: widget.eventName)
-          .where('createdAt', 
-              isGreaterThan: Timestamp.fromDate(fifteenMinutesAgo))
-          .orderBy('createdAt', descending: true)
-          .limit(1)
-          .get();
+      final query =
+          await FirebaseFirestore.instance
+              .collection('bookings')
+              .where('userId', isEqualTo: userId)
+              .where('eventName', isEqualTo: widget.eventName)
+              .where(
+                'createdAt',
+                isGreaterThan: Timestamp.fromDate(fifteenMinutesAgo),
+              )
+              .orderBy('createdAt', descending: true)
+              .limit(1)
+              .get();
 
       if (query.docs.isNotEmpty) {
         final bookingId = query.docs.first.id;
@@ -222,9 +218,10 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
     try {
       final updateData = <String, dynamic>{
         'status': 'paid',
-        'stripeStatus': widget.sessionId != null
-            ? 'checkout_session_completed'
-            : 'payment_intent_succeeded',
+        'stripeStatus':
+            widget.sessionId != null
+                ? 'checkout_session_completed'
+                : 'payment_intent_succeeded',
         'paidAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
         'confirmedByClient': true,
@@ -264,7 +261,9 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
 
     _animationController.forward();
 
-    // Show success message
+    // Refresh the events list so slots update
+    ref.refresh(upcomingEventsProvider); // << ADD THIS LINE
+
     _showSnackBar(
       'Booking confirmed successfully! 🎉',
       Colors.green,
@@ -332,9 +331,7 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
         ),
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
       ),
     );
@@ -466,10 +463,7 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
         const SizedBox(height: 16),
         Text(
           'Please wait while we confirm your booking',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
@@ -527,10 +521,7 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
           const SizedBox(height: 16),
           Text(
             'You\'ve successfully booked',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
           const SizedBox(height: 12),
           Container(
@@ -578,11 +569,7 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
             color: Colors.orange.withOpacity(0.1),
             border: Border.all(color: Colors.orange, width: 3),
           ),
-          child: const Icon(
-            Icons.schedule,
-            color: Colors.orange,
-            size: 60,
-          ),
+          child: const Icon(Icons.schedule, color: Colors.orange, size: 60),
         ),
         const SizedBox(height: 32),
         const Text(
@@ -598,11 +585,7 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
           _errorMessage != null
               ? _getReadableError(_errorMessage!)
               : 'Your booking is being processed',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[600],
-            height: 1.5,
-          ),
+          style: TextStyle(fontSize: 16, color: Colors.grey[600], height: 1.5),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 24),
@@ -615,11 +598,7 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
           ),
           child: Column(
             children: [
-              Icon(
-                Icons.info_outline,
-                color: Colors.blue[700],
-                size: 32,
-              ),
+              Icon(Icons.info_outline, color: Colors.blue[700], size: 32),
               const SizedBox(height: 12),
               Text(
                 'Your payment was successful! You will receive a confirmation email shortly.',
@@ -668,11 +647,7 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
             ),
           ),
           const SizedBox(height: 20),
-          _buildDetailRow(
-            Icons.event,
-            'Event',
-            widget.eventName,
-          ),
+          _buildDetailRow(Icons.event, 'Event', widget.eventName),
           _buildDetailRow(
             Icons.attach_money,
             'Amount',
@@ -685,11 +660,7 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
             valueColor: Colors.green,
           ),
           if (booking['userEmail'] != null)
-            _buildDetailRow(
-              Icons.email,
-              'Email',
-              booking['userEmail'],
-            ),
+            _buildDetailRow(Icons.email, 'Email', booking['userEmail']),
         ],
       ),
     );
@@ -711,11 +682,7 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
               color: const Color(0xFF667eea).withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: const Color(0xFF667eea),
-              size: 20,
-            ),
+            child: Icon(icon, color: const Color(0xFF667eea), size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -724,10 +691,7 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -751,7 +715,9 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          if (_errorMessage != null && !_isVerifying && _retryCount < _maxRetries) ...[
+          if (_errorMessage != null &&
+              !_isVerifying &&
+              _retryCount < _maxRetries) ...[
             SizedBox(
               width: double.infinity,
               height: 56,
@@ -781,21 +747,16 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
             width: double.infinity,
             height: 56,
             child: ElevatedButton.icon(
-              onPressed: _isVerifying
-                  ? null
-                  : () => context.router.popUntilRoot(),
+              onPressed:
+                  _isVerifying ? null : () => context.router.popUntilRoot(),
               icon: const Icon(Icons.home),
               label: const Text(
                 'Back to Home',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: _paymentConfirmed
-                    ? Colors.green
-                    : const Color(0xFF667eea),
+                backgroundColor:
+                    _paymentConfirmed ? Colors.green : const Color(0xFF667eea),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),

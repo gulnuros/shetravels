@@ -10,16 +10,10 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'package:shetravels/web_redirect_web.dart';
 import 'dart:io';
-import 'package:flutter/services.dart';
-import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'dart:html' as html show window; // For web localStorage
+
+const String _baseUrl =
+    'https://25d112331c65bed167512f5dc8915966.m.pipedream.net';
 
 final paymentRepositoryProvider = Provider<PaymentRepository>((ref) {
   return PaymentRepository(FirebaseAuth.instance, FirebaseFirestore.instance);
@@ -29,68 +23,51 @@ class PaymentRepository {
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
 
-  // Cloud Functions URLs
-  static const String _baseUrl =
-      'https://us-central1-shetravels-ac34a.cloudfunctions.net';
-
   PaymentRepository(this._auth, this._firestore);
 
+  // REFACTOR handlePayment - remove duplicate booking creation
   Future<String> handlePayment({
-    required int amount, // amount in cents (e.g. 1000 = CAD $10.00)
+    required int amount,
     required String eventName,
+    required String bookingId, // ADD THIS PARAMETER
+    Map<String, String>? metadata,
   }) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception('User not logged in');
 
     final userId = user.uid;
     final userEmail = user.email ?? 'unknown';
-    final platform = kIsWeb ? 'web' : 'mobile';
-
-    // 1) Create booking document first (status = pending)
-    final bookingRef = _firestore.collection('bookings').doc();
-    final bookingData = {
-      'userId': userId,
-      'userEmail': userEmail,
-      'eventName': eventName,
-      'amount': amount, // stored in cents
-      'currency': 'CAD',
-      'timestamp': FieldValue.serverTimestamp(),
-      'status': 'pending',
-      'platform': platform,
-      'createdAt': FieldValue.serverTimestamp(),
-    };
 
     try {
-      await bookingRef.set(bookingData);
-      debugPrint('✅ Booking document created: ${bookingRef.id}');
-
       if (kIsWeb) {
-        // 2A) Web: create Stripe Checkout session
+        // Web: create Stripe Checkout session
         await _handleWebPayment(
-          bookingRef.id,
+          bookingId,
           amount,
           userId,
           userEmail,
           eventName,
+          metadata: metadata,
         );
-        return bookingRef.id;
+        return bookingId;
       } else {
-        // 2B) Mobile: create PaymentIntent and show Payment Sheet
+        // Mobile: create PaymentIntent and show Payment Sheet
         await _handleMobilePayment(
-          bookingRef.id,
+          bookingId,
           amount,
           userId,
           userEmail,
           eventName,
+          metadata: metadata,
         );
-        return bookingRef.id;
+        return bookingId;
       }
     } catch (e) {
       debugPrint('❌ Payment flow error: $e');
 
       // Update booking status to failed
       try {
-        await bookingRef.update({
+        await _firestore.collection('bookings').doc(bookingId).update({
           'status': 'failed',
           'error': 'payment_flow_error',
           'errorMessage': e.toString(),
@@ -104,60 +81,103 @@ class PaymentRepository {
     }
   }
 
-  Future<void> _handleWebPayment(
-    String bookingId,
-    int amount,
-    String userId,
-    String userEmail,
-    String eventName,
-  ) async {
-    final url = Uri.parse('$_baseUrl/createCheckoutSession');
+  // ADD THIS NEW METHOD - Create booking separately
+  Future<String> createBooking({
+    required String eventName,
+    required int amount,
+    required String userId,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('User not logged in');
 
-    final payload = json.encode({
-      'amount': amount,
-      'currency': 'cad',
-      'bookingId': bookingId,
+    final userEmail = user.email ?? 'unknown';
+    final platform = kIsWeb ? 'web' : 'mobile';
+
+    final bookingRef = _firestore.collection('bookings').doc();
+    final bookingData = {
       'userId': userId,
       'userEmail': userEmail,
       'eventName': eventName,
-    });
+      'amount': amount,
+      'currency': 'CAD',
+      'timestamp': FieldValue.serverTimestamp(),
+      'status': 'pending',
+      'platform': platform,
+      'createdAt': FieldValue.serverTimestamp(),
+    };
 
-    debugPrint('🌐 Creating checkout session for booking: $bookingId');
+    await bookingRef.set(bookingData);
+    debugPrint('✅ Booking document created: ${bookingRef.id}');
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: payload,
-    );
+    return bookingRef.id;
+  }
+Future<void> _handleWebPayment(
+  String bookingId,
+  int amount,
+  String userId,
+  String userEmail,
+  String eventName, {
+  Map<String, String>? metadata,
+}) async {
+  final url = Uri.parse('$_baseUrl/createCheckoutSession');
 
-    if (response.statusCode != 200) {
-      debugPrint('❌ Checkout session creation failed: ${response.body}');
-      throw Exception('Failed to create checkout session: ${response.body}');
-    }
+  final payload = json.encode({
+    'amount': amount,
+    'currency': 'cad',
+    'bookingId': bookingId,
+    'userId': userId,
+    'userEmail': userEmail,
+    'eventName': eventName,
+    'metadata': metadata ?? {},
+  });
 
-    final jsonResponse = json.decode(response.body);
-    final checkoutUrl = jsonResponse['checkoutUrl'] as String?;
+  debugPrint('🌐 Creating checkout session for booking: $bookingId');
+  debugPrint('📤 Request URL: $url'); // ADD THIS
+  debugPrint('📤 Request payload: $payload'); // ADD THIS
 
-    if (checkoutUrl == null || checkoutUrl.isEmpty) {
-      throw Exception('No checkoutUrl returned from server.');
-    }
+  final response = await http.post(
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: payload,
+  );
 
-    debugPrint('✅ Checkout session created. Redirecting to: $checkoutUrl');
+  debugPrint('📥 Response status: ${response.statusCode}'); // ADD THIS
+  debugPrint('📥 Response body: ${response.body}'); // ADD THIS
 
-    // Import and use your web redirect function
-    openCheckoutUrl(checkoutUrl);
+  if (response.statusCode != 200) {
+    debugPrint('❌ Checkout session creation failed: ${response.body}');
+    throw Exception('Failed to create checkout session: ${response.body}');
   }
 
+  final jsonResponse = json.decode(response.body);
+  debugPrint('📥 Parsed response: $jsonResponse'); // ADD THIS
+
+  final checkoutUrl = jsonResponse['checkoutUrl'] as String?;
+
+  if (checkoutUrl == null || checkoutUrl.isEmpty) {
+    // ADD MORE DEBUG INFO
+    debugPrint('❌ Available keys in response: ${jsonResponse.keys}');
+    throw Exception('No checkoutUrl returned from server. Response: $jsonResponse');
+  }
+
+  debugPrint('✅ Checkout session created. Redirecting to: $checkoutUrl');
+
+  // Import and use your web redirect function
+  openCheckoutUrl(checkoutUrl);
+}
+
+  // FIX _handleMobilePayment signature and add payment verification
   Future<void> _handleMobilePayment(
     String bookingId,
     int amount,
     String userId,
     String userEmail,
-    String eventName,
-  ) async {
+    String eventName, {
+    Map<String, String>? metadata, // FIX: Make it optional named parameter
+  }) async {
     final url = Uri.parse('$_baseUrl/createPaymentIntent');
 
     final payload = json.encode({
@@ -167,6 +187,7 @@ class PaymentRepository {
       'userId': userId,
       'userEmail': userEmail,
       'eventName': eventName,
+      'metadata': metadata ?? {},
     });
 
     debugPrint('📱 Creating payment intent for booking: $bookingId');
@@ -187,6 +208,8 @@ class PaymentRepository {
 
     final jsonResponse = json.decode(response.body);
     final clientSecret = jsonResponse['clientSecret'] as String?;
+    final paymentIntentId =
+        jsonResponse['paymentIntentId'] as String?; // ADD THIS
 
     if (clientSecret == null) {
       throw Exception('No clientSecret returned from server.');
@@ -202,9 +225,7 @@ class PaymentRepository {
           merchantDisplayName: eventName,
           style: ThemeMode.system,
           appearance: const PaymentSheetAppearance(
-            colors: PaymentSheetAppearanceColors(
-              primary: Color(0xFFE91E63), // Pink theme
-            ),
+            colors: PaymentSheetAppearanceColors(primary: Color(0xFFE91E63)),
           ),
         ),
       );
@@ -214,8 +235,20 @@ class PaymentRepository {
 
       debugPrint('✅ Payment sheet completed successfully');
 
-      // Note: Don't mark as paid here - let the webhook handle it
-      // The webhook will update the status to 'paid' when payment succeeds
+      // ADD THIS: Update booking status immediately after successful payment
+      await Future.delayed(
+        const Duration(seconds: 1),
+      ); // Brief delay for Stripe processing
+
+      // Update booking to paid status
+      await _firestore.collection('bookings').doc(bookingId).update({
+        'status': 'paid',
+        'stripePaymentIntentId': paymentIntentId,
+        'paidAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      debugPrint('✅ Booking marked as paid');
     } on StripeException catch (e) {
       debugPrint('❌ Stripe payment error: ${e.error}');
 
@@ -333,10 +366,12 @@ class PaymentRepository {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      // Retry the payment flow
+      // Retry the payment flow - ADD bookingId parameter
       await handlePayment(
         amount: booking['amount'],
         eventName: booking['eventName'],
+        bookingId: bookingId, // ADD THIS LINE
+        metadata: {'bookingId': bookingId, 'eventName': booking['eventName']},
       );
     } catch (e) {
       debugPrint('Error retrying payment: $e');
@@ -344,8 +379,3 @@ class PaymentRepository {
     }
   }
 }
-
-
-
-
-// https://us-central1-shetravels-ac34a.cloudfunctions.net/handleStripeWebhook

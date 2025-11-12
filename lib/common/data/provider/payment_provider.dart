@@ -1,65 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shetravels/common/data/repository/payment_repository.dart';
-
-// final paymentNotifierProvider = ChangeNotifierProvider<PaymentNotifier>((ref) {
-//   final repo = ref.read(paymentRepositoryProvider);
-//   return PaymentNotifier(repo);
-// });
-
-// class PaymentNotifier extends ChangeNotifier {
-//   final PaymentRepository _repository;
-//   bool _isLoading = false;
-//   String? _errorMessage;
-
-//   bool get isLoading => _isLoading;
-//   String? get errorMessage => _errorMessage;
-
-//   PaymentNotifier(this._repository);
-
-//   Future<void> pay({
-//     required BuildContext context,
-//     required int amount,
-//     required String eventName,
-//   }) async {
-//     _isLoading = true;
-//     _errorMessage = null;
-//     notifyListeners();
-
-//     try {
-//       await _repository.handlePayment(amount: amount, eventName: eventName);
-
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(
-//           content: Text(
-//             'Payment in progress, You will be navigate to the payment screen',
-//           ),
-//         ),
-//       );
-//     } catch (e) {
-//       _errorMessage = e.toString();
-//       ScaffoldMessenger.of(
-//         context,
-//       ).showSnackBar(SnackBar(content: Text('Payment Error: $_errorMessage')));
-//     } finally {
-//       _isLoading = false;
-//       notifyListeners();
-//     }
-//   }
-
-  // Future<bool> hasBooked(String userId, String eventName) {
-  //   return _repository.hasUserBookedEvent(userId, eventName);
-  // }
-
-  // Map<String, int> countdown(String dateString) {
-  //   return _repository.calculateCountdown(dateString);
-  // }
-
-  // Future<int> getBookedCount(String eventName) {
-  //   return _repository.getBookedCount(eventName);
-  // }
-// }
 
 
 import 'package:flutter/material.dart';
@@ -85,6 +28,7 @@ class PaymentNotifier extends ChangeNotifier {
   String? _errorMessage;
   String? _currentBookingId;
   Map<String, dynamic>? _currentBooking;
+  String? _currentBookingSessionId; // ADD THIS LINE
 
   PaymentStatus get status => _status;
   String? get errorMessage => _errorMessage;
@@ -97,6 +41,7 @@ class PaymentNotifier extends ChangeNotifier {
 
   PaymentNotifier(this._repository);
 
+  // REFACTORED pay method
   Future<void> pay({
     required BuildContext context,
     required int amount,
@@ -134,18 +79,29 @@ class PaymentNotifier extends ChangeNotifier {
         );
       }
 
-      // Handle payment and get booking ID
-      final bookingId = await _repository.handlePayment(
+      // Step 1: Create booking in Firebase first
+      final bookingId = await _repository.createBooking(
+        eventName: eventName,
+        amount: amount,
+        userId: FirebaseAuth.instance.currentUser!.uid,
+      );
+      
+      _currentBookingId = bookingId;
+      debugPrint('📝 Booking created: $bookingId');
+
+      // Step 2: Handle payment with Stripe
+      await _repository.handlePayment(
         amount: amount,
         eventName: eventName,
+        bookingId: bookingId,
+        metadata: {
+          'bookingId': bookingId,
+          'eventName': eventName,
+        },
       );
 
-      _currentBookingId = bookingId;
-
-      // For mobile payments, we need to wait for the webhook
-      // For web payments, user will be redirected
+      // For mobile payments, listen to booking status changes
       if (!kIsWeb) {
-        // Start listening to booking status changes
         _listenToBookingStatus(bookingId);
         
         if (context.mounted) {
@@ -157,6 +113,7 @@ class PaymentNotifier extends ChangeNotifier {
           );
         }
       } else {
+        // For web, user will be redirected to Stripe Checkout
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -188,6 +145,7 @@ class PaymentNotifier extends ChangeNotifier {
       }
     }
   }
+
 
   void _setStatus(PaymentStatus newStatus) {
     _status = newStatus;

@@ -218,11 +218,13 @@ class _UpcomingToursState extends ConsumerState<UpcomingTours> {
               ],
             ),
             onPressed: () async {
-              await paymentProvider.pay(
-                context: context,
-                amount: event.price,
-                eventName: event.title,
-              );
+      await paymentProvider.pay(
+  context: context,
+  amount: event.price,
+  eventName: event.title,
+);
+ref.refresh(upcomingEventsProvider);
+
             },
           ),
         );

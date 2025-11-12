@@ -19,7 +19,6 @@ void main() async {
       storageBucket: "shetravels-ac34a.firebasestorage.app",
     ),
   );
-
   runApp(const ProviderScope(child: SheTravelApp()));
 }
 
@@ -44,3 +43,18 @@ class _SheTravelAppState extends State<SheTravelApp> {
     );
   }
 }
+
+
+
+
+
+// firebase functions:config:set stripe.secret_key="sk_test_51Ro4rt4PEU7g7vAIgi47kSAv3PNYPO5o7qPvJtaBoNIfOa7kwHSbhadlTHkA4xbCLy286VDbDjAqkGV1VyYC06UV00P9cPZzLM"
+
+
+// firebase functions:config:set stripe.webhook_secret="whsec_SXNPvKLEw91710NgCWcxUb4cHALZ9a7c"
+
+// firebase deploy --only functions
+
+//pipederm scretae key : whsec_0WfoZveu4DvX2dAtiBw7slMueyUxt5VZ
+
+

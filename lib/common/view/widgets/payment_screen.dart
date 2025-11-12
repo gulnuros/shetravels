@@ -21,7 +21,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     try {
       // 1. Create PaymentIntent on your backend
       final url = Uri.parse(
-        'https://us-central1-shetravels-ac34a.cloudfunctions.net/createPaymentIntent',
+        'https://25d112331c65bed167512f5dc8915966.m.pipedream.net/createPaymentIntent',
       );
 
       final response = await http.post(
