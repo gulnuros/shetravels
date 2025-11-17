@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart' as stp;
 import 'package:shetravels/utils/route.dart';
@@ -7,8 +8,13 @@ import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  stp.Stripe.publishableKey =
-      'pk_test_51Ro4rt4PEU7g7vAIEniFRppWPZVviCtkyRqWpmzCuQKk3aHgFmvLzAWEU27pTPDkj2gCX0UPLVqwEcUBiEVGqZ1r00XHc6VPoN';
+  await dotenv.load(fileName: ".env");
+
+  // Initialize Stripe with publishable key from .env
+  stp.Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY'] ?? '';
+
+  // stp.Stripe.publishableKey =
+
   await stp.Stripe.instance.applySettings();
   await Firebase.initializeApp(
     options: FirebaseOptions(
