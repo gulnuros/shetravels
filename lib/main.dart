@@ -9,11 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-
-  // Initialize Stripe with publishable key from .env
   stp.Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY'] ?? '';
-
-  // stp.Stripe.publishableKey =
 
   await stp.Stripe.instance.applySettings();
   await Firebase.initializeApp(
