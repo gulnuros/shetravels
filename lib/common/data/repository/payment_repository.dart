@@ -12,8 +12,7 @@ import 'package:shetravels/web_redirect_web.dart';
 import 'dart:io';
 import 'dart:html' as html show window; // For web localStorage
 
-const String _baseUrl =
-    'https://25d112331c65bed167512f5dc8915966.m.pipedream.net';
+const String _baseUrl = 'https://eopunno0qlel5e2.m.pipedream.net';
 
 final paymentRepositoryProvider = Provider<PaymentRepository>((ref) {
   return PaymentRepository(FirebaseAuth.instance, FirebaseFirestore.instance);
@@ -111,63 +110,66 @@ class PaymentRepository {
 
     return bookingRef.id;
   }
-Future<void> _handleWebPayment(
-  String bookingId,
-  int amount,
-  String userId,
-  String userEmail,
-  String eventName, {
-  Map<String, String>? metadata,
-}) async {
-  final url = Uri.parse('$_baseUrl/createCheckoutSession');
 
-  final payload = json.encode({
-    'amount': amount,
-    'currency': 'cad',
-    'bookingId': bookingId,
-    'userId': userId,
-    'userEmail': userEmail,
-    'eventName': eventName,
-    'metadata': metadata ?? {},
-  });
+  Future<void> _handleWebPayment(
+    String bookingId,
+    int amount,
+    String userId,
+    String userEmail,
+    String eventName, {
+    Map<String, String>? metadata,
+  }) async {
+    final url = Uri.parse('$_baseUrl/createCheckoutSession');
 
-  debugPrint('🌐 Creating checkout session for booking: $bookingId');
-  debugPrint('📤 Request URL: $url'); // ADD THIS
-  debugPrint('📤 Request payload: $payload'); // ADD THIS
+    final payload = json.encode({
+      'amount': amount,
+      'currency': 'cad',
+      'bookingId': bookingId,
+      'userId': userId,
+      'userEmail': userEmail,
+      'eventName': eventName,
+      'metadata': metadata ?? {},
+    });
 
-  final response = await http.post(
-    url,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    body: payload,
-  );
+    debugPrint('🌐 Creating checkout session for booking: $bookingId');
+    debugPrint('📤 Request URL: $url'); // ADD THIS
+    debugPrint('📤 Request payload: $payload'); // ADD THIS
 
-  debugPrint('📥 Response status: ${response.statusCode}'); // ADD THIS
-  debugPrint('📥 Response body: ${response.body}'); // ADD THIS
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: payload,
+    );
 
-  if (response.statusCode != 200) {
-    debugPrint('❌ Checkout session creation failed: ${response.body}');
-    throw Exception('Failed to create checkout session: ${response.body}');
+    debugPrint('📥 Response status: ${response.statusCode}'); // ADD THIS
+    debugPrint('📥 Response body: ${response.body}'); // ADD THIS
+
+    if (response.statusCode != 200) {
+      debugPrint('❌ Checkout session creation failed: ${response.body}');
+      throw Exception('Failed to create checkout session: ${response.body}');
+    }
+
+    final jsonResponse = json.decode(response.body);
+    debugPrint('📥 Parsed response: $jsonResponse'); // ADD THIS
+
+    final checkoutUrl = jsonResponse['checkoutUrl'] as String?;
+
+    if (checkoutUrl == null || checkoutUrl.isEmpty) {
+      // ADD MORE DEBUG INFO
+      debugPrint('❌ Available keys in response: ${jsonResponse.keys}');
+      throw Exception(
+        'No checkoutUrl returned from server. Response: $jsonResponse',
+      );
+    }
+
+    debugPrint('✅ Checkout session created. Redirecting to: $checkoutUrl');
+
+    // Import and use your web redirect function
+    openCheckoutUrl(checkoutUrl);
   }
-
-  final jsonResponse = json.decode(response.body);
-  debugPrint('📥 Parsed response: $jsonResponse'); // ADD THIS
-
-  final checkoutUrl = jsonResponse['checkoutUrl'] as String?;
-
-  if (checkoutUrl == null || checkoutUrl.isEmpty) {
-    // ADD MORE DEBUG INFO
-    debugPrint('❌ Available keys in response: ${jsonResponse.keys}');
-    throw Exception('No checkoutUrl returned from server. Response: $jsonResponse');
-  }
-
-  debugPrint('✅ Checkout session created. Redirecting to: $checkoutUrl');
-
-  // Import and use your web redirect function
-  openCheckoutUrl(checkoutUrl);
-}
 
   // FIX _handleMobilePayment signature and add payment verification
   Future<void> _handleMobilePayment(

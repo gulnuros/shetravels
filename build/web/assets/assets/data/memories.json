@@ -1,0 +1,27 @@
+[
+  {
+    "title": "Sisterhood in the Mountains",
+    "description": "A weekend filled with prayers, hikes, and heartfelt bonding.",
+    "imageUrl": "assets/hike_5.jpeg"
+  },
+  {
+    "title": "Beachside Reflection",
+    "description": "Sunsets, dhikr circles, and joyful memories under the open sky.",
+    "imageUrl": "assets/hike_1.jpeg"
+  },
+    {
+    "title": "Sisterhood in the Mountains",
+    "description": "A weekend filled with prayers, hikes, and heartfelt bonding.",
+    "imageUrl": "assets/hike_2.jpeg"
+  },
+  {
+    "title": "Beachside Reflection",
+    "description": "Sunsets, dhikr circles, and joyful memories under the open sky.",
+    "imageUrl": "assets/hike_3.jpeg"
+  },
+    {
+    "title": "Beachside Reflection",
+    "description": "Sunsets, dhikr circles, and joyful memories under the open sky.",
+    "imageUrl": "assets/hike_5.jpeg"
+  }
+]
