@@ -14,11 +14,11 @@ void main() async {
   await stp.Stripe.instance.applySettings();
   await Firebase.initializeApp(
     options: FirebaseOptions(
-      apiKey: "AIzaSyDB1oaqJLqOQniQJdXDZ_9Nnv-2rwCrUMw",
-      appId: "1:954659216726:web:8d0f2d910d445134840af7",
-      messagingSenderId: "954659216726",
-      projectId: "shetravels-ac34a",
-      storageBucket: "shetravels-ac34a.firebasestorage.app",
+      apiKey: "",
+      appId: "",
+      messagingSenderId: "",
+      projectId: "",
+      storageBucket: "",
     ),
   );
   runApp(const ProviderScope(child: SheTravelApp()));
