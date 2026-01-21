@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:shetravels/testimonial/data/testimonial_repository.dart';
 
 import 'data/model/testimonial.dart';
 

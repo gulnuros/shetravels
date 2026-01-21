@@ -22,9 +22,7 @@ class _AdminBookingDashboardScreenState
   String _selectedFilter = 'All';
   bool _isExporting = false;
   List<QueryDocumentSnapshot> _allBookings = [];
-
-  // Track updating status for each booking
-  Map<String, bool> _updatingStatus = {};
+  final Map<String, bool> _updatingStatus = {};
 
   Future<void> _handleExport() async {
     setState(() => _isExporting = true);
@@ -56,7 +54,6 @@ class _AdminBookingDashboardScreenState
     super.dispose();
   }
 
-  // Function to update payment status
   Future<void> _updatePaymentStatus(String bookingId, String newStatus) async {
     setState(() {
       _updatingStatus[bookingId] = true;
@@ -131,10 +128,8 @@ class _AdminBookingDashboardScreenState
                 child: _buildModernHeader(isMobile),
               ),
 
-              // Search and Filter Bar
               _buildSearchAndFilterBar(isMobile),
 
-              // Content Area - FIXED: Added Expanded wrapper
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: bookingsRef.snapshots(),
@@ -169,7 +164,6 @@ class _AdminBookingDashboardScreenState
         ),
       ),
 
-      // Floating Action Button for Export
       floatingActionButton: buildExportFAB(
         isExporting: _isExporting,
         onPressed: _handleExport,
@@ -516,7 +510,7 @@ class _AdminBookingDashboardScreenState
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 1.0, // Adjusted to accommodate status dropdown
+        childAspectRatio: 1.0, 
       ),
       itemCount: docs.length,
       itemBuilder: (context, index) {

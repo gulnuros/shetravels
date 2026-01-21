@@ -7,7 +7,7 @@ import 'package:shetravels/common/data/founder_provider.dart';
 import 'package:shetravels/common/data/models/founder_message.dart';
 
 class FounderSection extends ConsumerStatefulWidget {
-  const FounderSection({Key? key}) : super(key: key);
+  const FounderSection({super.key});
 
   @override
   ConsumerState<FounderSection> createState() => _FounderSectionState();
@@ -117,7 +117,6 @@ class _FounderSectionState extends ConsumerState<FounderSection> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Portrait
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Image.network(
@@ -135,7 +134,6 @@ class _FounderSectionState extends ConsumerState<FounderSection> {
                     ),
                   ),
                   SizedBox(height: 24),
-                  // Text block
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -173,7 +171,6 @@ class _FounderSectionState extends ConsumerState<FounderSection> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Portrait
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Image.network(

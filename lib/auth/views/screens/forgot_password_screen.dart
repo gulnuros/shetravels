@@ -5,7 +5,6 @@ import 'package:shetravels/auth/data/controller/auth_controller.dart';
 import 'package:shetravels/utils/route.gr.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shetravels/utils/helpers.dart';
-import 'package:flutter/services.dart';
 
 @RoutePage()
 class ForgetPasswordScreen extends ConsumerStatefulWidget {
@@ -192,7 +191,6 @@ class _ForgetPasswordScreenState extends ConsumerState<ForgetPasswordScreen>
                       ),
                     );
                   } else {
-                    // Fallback icon if SVG fails to load
                     return Icon(
                       Icons.travel_explore_rounded,
                       size: isMobile ? 60 : 70,
@@ -291,10 +289,7 @@ class _ForgetPasswordScreenState extends ConsumerState<ForgetPasswordScreen>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // Logo and Brand Section
                             _buildLogo(isMobile),
-
-                            // Login Form Card
                             Container(
                               padding: EdgeInsets.all(isMobile ? 24 : 32),
                               decoration: BoxDecoration(
@@ -319,7 +314,6 @@ class _ForgetPasswordScreenState extends ConsumerState<ForgetPasswordScreen>
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
                                   children: [
-                                    // Header Section
                                     Column(
                                       children: [
                                         Text(
@@ -346,10 +340,8 @@ class _ForgetPasswordScreenState extends ConsumerState<ForgetPasswordScreen>
                                     ),
                                     SizedBox(height: isMobile ? 24 : 32),
 
-                                    // Error Message
                                     _buildErrorMessage(),
 
-                                    // Email Field
                                     _buildTextField(
                                       label: "Email Address",
                                       controller: emailController,
@@ -440,7 +432,6 @@ class _ForgetPasswordScreenState extends ConsumerState<ForgetPasswordScreen>
                                       ),
                                     ),
 
-                                    // Auth State Error Display
                                     if (authState.error != null) ...[
                                       const SizedBox(height: 16),
                                       Container(

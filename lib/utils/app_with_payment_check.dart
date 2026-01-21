@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shetravels/booking/views/payment_success.dart';
 import 'package:shetravels/common/data/repository/payment_repository.dart';
 import 'package:shetravels/payment/success.dart';
 import 'package:shetravels/web_redirect_web.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Add this to your main app widget or home screen
 class AppWithPaymentCheck extends ConsumerStatefulWidget {
   final Widget child;
   
@@ -25,7 +20,6 @@ class _AppWithPaymentCheckState extends ConsumerState<AppWithPaymentCheck> {
   void initState() {
     super.initState();
     
-    // Check for payment success on web
     if (kIsWeb) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _checkForPaymentSuccess();
@@ -35,10 +29,7 @@ class _AppWithPaymentCheckState extends ConsumerState<AppWithPaymentCheck> {
 
   void _checkForPaymentSuccess() {
     try {
-      // Handle success redirect first
       handleSuccessRedirect();
-      
-      // Get success parameters
       final params = getSuccessParameters();
       final isSuccess = params['isSuccess'] == 'true';
       
@@ -46,20 +37,12 @@ class _AppWithPaymentCheckState extends ConsumerState<AppWithPaymentCheck> {
         final bookingId = params['bookingId'];
         final sessionId = params['sessionId'];
         
-        // Clear the parameters
         clearSuccessParameters();
-        
-        // Navigate to success screen
-        // You'll need to determine the event name somehow
-        // You can either:
-        // 1. Store it in localStorage during payment initiation
-        // 2. Fetch it from Firebase using the bookingId
-        // 3. Pass it as a URL parameter
+     
         
         if (bookingId != null) {
           _navigateToSuccessWithBookingId(bookingId, sessionId);
         } else {
-          // Fallback: show a generic success message
           _showGenericSuccessMessage();
         }
       } else if (isPaymentCancelled()) {
@@ -72,12 +55,10 @@ class _AppWithPaymentCheckState extends ConsumerState<AppWithPaymentCheck> {
 
   void _navigateToSuccessWithBookingId(String bookingId, String? sessionId) async {
     try {
-      // First check if we have the event name in localStorage
       final params = getSuccessParameters();
       final eventName = params['eventName'];
       
       if (eventName != null && mounted) {
-        // We have the event name, navigate directly
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => PaymentSuccessScreen(
@@ -90,7 +71,6 @@ class _AppWithPaymentCheckState extends ConsumerState<AppWithPaymentCheck> {
         return;
       }
       
-      // Fallback: Fetch booking details to get event name
       final paymentRepo = ref.read(paymentRepositoryProvider);
       final booking = await paymentRepo.getBookingById(bookingId);
       
@@ -129,8 +109,6 @@ class _AppWithPaymentCheckState extends ConsumerState<AppWithPaymentCheck> {
             label: 'View Bookings',
             textColor: Colors.white,
             onPressed: () {
-              // Navigate to bookings page or profile
-              // Navigator.pushNamed(context, '/bookings');
             },
           ),
         ),
@@ -158,20 +136,3 @@ class _AppWithPaymentCheckState extends ConsumerState<AppWithPaymentCheck> {
     return widget.child;
   }
 }
-
-// Usage in your main.dart or app.dart:
-// 
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       home: Consumer(
-//         builder: (context, ref, child) {
-//           return AppWithPaymentCheck(
-//             child: YourHomeScreen(), // Your actual home screen
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }

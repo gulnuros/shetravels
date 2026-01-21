@@ -32,8 +32,8 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
   bool _isLoading = true;
   String _searchQuery = '';
   String _selectedCategory = 'All';
-  String? _selectedImageUrl; // ✅ store uploaded image url
-  bool _isImageUploading = false; // ✅ separate state for image upload button
+  String? _selectedImageUrl; 
+  bool _isImageUploading = false;
 
 
   late AnimationController _fadeController;
@@ -117,7 +117,7 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
     final imageUrl = await _pickAndUploadImage();
     if (imageUrl != null) {
       setState(() {
-        _selectedImageUrl = imageUrl; // ✅ save url for preview + submit
+        _selectedImageUrl = imageUrl;
       });
     }
     setState(() => _isImageUploading = false);
@@ -138,7 +138,7 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
       final newImg = GalleryImage(
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
-        imageUrl: _selectedImageUrl!, // ✅ use saved url
+        imageUrl: _selectedImageUrl!,
         category: _selectedCategory == 'All' ? 'Adventures' : _selectedCategory,
         createdAt: Timestamp.now(),
       );
@@ -151,7 +151,7 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
         gallery.insert(0, newImg.copyWith(id: docRef.id));
         _titleController.clear();
         _descriptionController.clear();
-        _selectedImageUrl = null; // ✅ reset after submit
+        _selectedImageUrl = null; 
         _isUploading = false;
       });
 
@@ -214,9 +214,7 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
   }
 
   Future<void> _addImage() async {
-
-    //this method shpuld be able to upload an image and we will use the link in the submit method.
-    if (!_formKey.currentState!.validate()) return;
+ if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isUploading = true);
 
@@ -244,8 +242,6 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
           .collection('gallery')
           .doc(image.id)
           .delete();
-
-      // Try to delete from storage as well
       try {
         final ref = FirebaseStorage.instance.refFromURL(image.imageUrl);
         await ref.delete();
@@ -308,7 +304,6 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Header
                     Row(
                       children: [
                         Container(
@@ -352,8 +347,6 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
                       ],
                     ),
                     const SizedBox(height: 32),
-
-                    // Form Fields
                     TextFormField(
                       controller: _titleController,
                       decoration: InputDecoration(
@@ -399,10 +392,8 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
                       maxLines: 3,
                     ),
                     const SizedBox(height: 16),
-
-                    // Category Dropdown
                     DropdownButtonFormField<String>(
-                      value:
+                      initialValue:
                           _selectedCategory == 'All'
                               ? 'Adventures'
                               : _selectedCategory,
@@ -594,7 +585,6 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Close button
                   Align(
                     alignment: Alignment.topRight,
                     child: Container(
@@ -609,8 +599,6 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
                       ),
                     ),
                   ),
-
-                  // Image
                   Expanded(
                     child: Container(
                       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -633,8 +621,6 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
                       ),
                     ),
                   ),
-
-                  // Image info
                   Container(
                     margin: const EdgeInsets.all(16),
                     padding: const EdgeInsets.all(20),
@@ -736,7 +722,6 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
             scale: _scaleAnimation,
             child: Column(
               children: [
-                // Header Section
                 Container(
                   padding: EdgeInsets.all(isWeb ? 32 : 20),
                   decoration: BoxDecoration(
@@ -808,8 +793,6 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
                         ],
                       ),
                       const SizedBox(height: 20),
-
-                      // Search and Filter Section
                       Row(
                         children: [
                           Expanded(
@@ -847,7 +830,7 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: DropdownButtonFormField<String>(
-                                value: _selectedCategory,
+                                initialValue: _selectedCategory,
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
@@ -877,8 +860,6 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
                     ],
                   ),
                 ),
-
-                // Content Section
                 Expanded(
                   child:
                       _isLoading
@@ -966,7 +947,6 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Image
               Expanded(
                 flex: 3,
                 child: Container(
@@ -1008,8 +988,6 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
                   ),
                 ),
               ),
-
-              // Content
               Expanded(
                 flex: 2,
                 child: Padding(
@@ -1037,7 +1015,6 @@ class _AdminGalleryScreenState extends State<AdminGalleryScreen>
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
-                            //    vertical: 4,
                               ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF667eea).withOpacity(0.1),

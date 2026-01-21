@@ -127,7 +127,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
   }
 
   Widget _buildWebLayout() {
-    Map<String, double> _getResponsiveDimensions(Size size) {
+    Map<String, double> getResponsiveDimensions(Size size) {
       final bool isMobile = size.width < 600;
       final bool isTablet = size.width >= 600 && size.width < 1200;
       final bool isDesktop = size.width >= 1200;
@@ -149,10 +149,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
 
     final size = MediaQuery.of(context).size;
 
-    final dimensions = _getResponsiveDimensions(size);
+    final dimensions = getResponsiveDimensions(size);
     return Row(
       children: [
-        // Side Navigation
         Container(
           width: 280,
           decoration: BoxDecoration(
@@ -171,7 +170,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
           ),
           child: Column(
             children: [
-              // Header
               Container(
                 padding: const EdgeInsets.all(32.0),
                 child: Column(
@@ -182,7 +180,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                       ),
                       child: Column(
                         children: [
-                          // Logo Container
                           Container(
                             width: dimensions['logoSize'],
                             height: dimensions['logoSize'],
@@ -249,8 +246,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                   ],
                 ),
               ),
-
-              // Navigation Items
               Expanded(
                 child: ListView.builder(
                   itemCount: _navigationItems.length,
@@ -309,8 +304,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                   },
                 ),
               ),
-
-              // Logout Button
               Container(
                 margin: const EdgeInsets.all(16),
                 child: Material(
@@ -348,8 +341,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
             ],
           ),
         ),
-
-        // Main Content
         Expanded(
           child: FadeTransition(
             opacity: _fadeAnimation,
@@ -364,7 +355,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
   }
 
   Widget _buildMobileLayout() {
-    Map<String, double> _getResponsiveDimensions(Size size) {
+    Map<String, double> getResponsiveDimensions(Size size) {
       final bool isMobile = size.width < 600;
       final bool isTablet = size.width >= 600 && size.width < 1200;
       final bool isDesktop = size.width >= 1200;
@@ -386,10 +377,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
 
     final size = MediaQuery.of(context).size;
 
-    final dimensions = _getResponsiveDimensions(size);
+    final dimensions = getResponsiveDimensions(size);
     return Column(
       children: [
-        // Mobile Header
         Container(
           decoration: BoxDecoration(
             gradient: const LinearGradient(
@@ -414,7 +404,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                     ),
                     child: Column(
                       children: [
-                        // Logo Container
                         Container(
                           width: dimensions['logoSize'],
                           height: dimensions['logoSize'],
@@ -490,8 +479,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
             ),
           ),
         ),
-
-        // Main Content
         Expanded(
           child: FadeTransition(
             opacity: _fadeAnimation,
@@ -591,7 +578,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Welcome Header
           Text(
             "Welcome back, Admin! 👋",
             style: TextStyle(
@@ -609,8 +595,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
             ),
           ),
           const SizedBox(height: 32),
-
-          // Current Section Content
           Expanded(child: _buildSectionContent()),
         ],
       ),
@@ -640,25 +624,23 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
 
   Widget _getCurrentScreen() {
     switch (_selectedIndex) {
-      case 0: // Manage Events
+      case 0: 
         return const AdminManageEventScreen();
-      case 1: // Manage Gallery
-        return const AdminGalleryScreen(); // Replace with your actual gallery screen widget
-      case 2: // Memories
-        return const AdminMemoriesScreen(); // Replace with your actual memories screen widget
-      case 3: // View Bookings
-        return const AdminBookingDashboardScreen(); // Replace with your actual bookings screen widget
-
-      case 4: // Message from founder
+      case 1: 
+        return const AdminGalleryScreen(); 
+      case 2: 
+        return const AdminMemoriesScreen(); 
+           case 3:
+        return const AdminBookingDashboardScreen(); 
+      case 4: 
         return const AdminFounderPage();
 
-      case 5: // Message from founder
+      case 5: 
         return AdminManageTestimonialsPage();
-      //
 
-        case 6: // Message from founder
+
+        case 6: 
         return AdminNewsletterDashboard();
-      //
       default:
         return _buildDefaultContent();
     }

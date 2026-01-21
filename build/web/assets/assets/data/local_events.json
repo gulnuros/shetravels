@@ -1,0 +1,16 @@
+[
+  {
+    "title": "Sacred Sisterhood Hike",
+    "description": "Join us for a soul-nourishing hike through lush trails with space for prayer and reflection.",
+    "date": "2025-07-10",
+    "location": "Blue Ridge Mountains",
+    "imageUrl": "assets/hike_1.jpeg"
+  },
+  {
+    "title": "Faith & Nature Retreat",
+    "description": "A weekend of quiet reflection, bonding, and halal meals in a cozy nature lodge.",
+    "date": "2025-08-15",
+    "location": "Lake Serenity Retreat Center",
+    "imageUrl": "assets/hike_5.jpeg"
+  }
+]

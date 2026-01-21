@@ -11,8 +11,8 @@ class AnimatedSection extends StatefulWidget {
     required this.child,
     required this.keyId,
     this.duration = const Duration(milliseconds: 800),
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _AnimatedSectionState createState() => _AnimatedSectionState();

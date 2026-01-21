@@ -10,7 +10,7 @@ class PaymentCancelScreen extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Text(
-          "❌ Payment Cancelled",
+          " Payment Cancelled",
           style: Theme.of(context).textTheme.headlineMedium,
         ),
       ),

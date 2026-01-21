@@ -19,16 +19,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
   Event? getNextUpcomingEvent(List<Event> events) {
     final now = DateTime.now();
-    
-    // Filter events that haven't happened yet
+
     final upcomingEvents = events.where((event) {
       final eventDate = _parseEventDate(event.date);
       return eventDate != null && eventDate.isAfter(now);
     }).toList();
 
     if (upcomingEvents.isEmpty) return null;
-
-    // Sort by date (earliest first) and return the next upcoming event
     upcomingEvents.sort((a, b) {
       final dateA = _parseEventDate(a.date);
       final dateB = _parseEventDate(b.date);
@@ -38,16 +35,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
     return upcomingEvents.first;
   }
-
-  /// Parse event date string to DateTime
   DateTime? _parseEventDate(String dateString) {
     try {
-      // Handle different date formats
       if (dateString.contains('T')) {
-        // ISO format: 2024-03-15T10:00:00Z
         return DateTime.parse(dateString);
       } else if (dateString.contains('/')) {
-        // Format: MM/DD/YYYY or DD/MM/YYYY
         final parts = dateString.split('/');
         if (parts.length >= 3) {
           final day = int.parse(parts[0]);
@@ -56,7 +48,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
           return DateTime(year, month, day);
         }
       } else if (dateString.contains('-')) {
-        // Format: YYYY-MM-DD
         final parts = dateString.split('-');
         if (parts.length >= 3) {
           final year = int.parse(parts[0]);
@@ -65,8 +56,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
           return DateTime(year, month, day);
         }
       }
-      
-      // Try to parse as timestamp
+    
       final timestamp = int.tryParse(dateString);
       if (timestamp != null) {
         return DateTime.fromMillisecondsSinceEpoch(timestamp);
@@ -126,11 +116,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header with close button
                 _buildPopupHeader(  context: context, mounted: mounted),
                 const SizedBox(height: 16),
-
-                // Description
                 _buildPopupDescription(),
                 const SizedBox(height: 20),
 
@@ -245,22 +232,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
         children: [
           Row(
             children: [
-              // Event image
               _buildEventImage(event),
               const SizedBox(width: 16),
-
-              // Event details
               Expanded(child: _buildEventDetails(event)),
             ],
           ),
           
-          // Time countdown if available
           if (timeUntilEvent != null) ...[
             const SizedBox(height: 12),
             _buildTimeCountdown(timeUntilEvent),
           ],
           
-          // Event status indicators
           const SizedBox(height: 12),
           _buildEventStatus(event),
         ],
@@ -297,7 +279,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
   Widget _buildEventStatus(Event event) {
     return Row(
       children: [
-        // Slots indicator
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
@@ -318,8 +299,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
           ),
         ),
         const SizedBox(width: 8),
-        
-        // Price indicator
+      
         if (event.price > 0)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -514,7 +494,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
                eventDate.year == tomorrow.year) {
       return "Tomorrow";
     } else {
-      // Format: Mar 15, 2024
       final months = [
         'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
@@ -526,7 +505,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
   Widget _buildPopupActions(Event event,    {required BuildContext context, required bool mounted, required Function scrollToSection}) {
     return Row(
       children: [
-        // Dismiss button
         Expanded(
           child: OutlinedButton(
             style: OutlinedButton.styleFrom(
@@ -551,8 +529,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
           ),
         ),
         const SizedBox(width: 12),
-
-        // View details button
         Expanded(
           flex: 2,
           child: ElevatedButton(
@@ -669,7 +645,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
   Widget buildHeroSection(BuildContext context, Function scrollToSection) {
-    return Container(
+    return SizedBox(
       height: 700,
       width: MediaQuery.of(context).size.width,
       child: Stack(

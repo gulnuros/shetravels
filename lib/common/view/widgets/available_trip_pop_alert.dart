@@ -17,7 +17,6 @@ class TripPopupExample extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title
                 Row(
                   children: [
                     Icon(Icons.info_outline, color: Colors.brown),
@@ -38,21 +37,19 @@ class TripPopupExample extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
 
-                // Subtitle
                 Text(
                   'Check out our Upcoming Retreats to explore transformative experiences '
                   'designed to nourish your soul, build sisterhood, and inspire growth',
                   style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                 ),
                 const SizedBox(height: 16),
-
-                // Image + Details
                 Row(
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(50),
                       child: Image.network(
-                        'https://upload.wikimedia.org/wikipedia/commons/9/90/Blue_City%2C_Chefchaouen%2C_Morocco.jpg', // sample
+                        'https://upload.wikimedia.org/wikipedia/commons/9/90/Blue_City%2C_Chefchaouen%2C_Morocco.jpg',
+
                         width: 80,
                         height: 80,
                         fit: BoxFit.cover,
@@ -84,7 +81,6 @@ class TripPopupExample extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(

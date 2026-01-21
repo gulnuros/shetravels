@@ -2,12 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_stripe/flutter_stripe.dart';
 
 class PaymentScreen extends StatefulWidget {
+  const PaymentScreen({super.key});
+
   @override
   _PaymentScreenState createState() => _PaymentScreenState();
 }
@@ -19,16 +17,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
     setState(() => _loading = true);
 
     try {
-      // 1. Create PaymentIntent on your backend
       final url = Uri.parse(
-        'https://25d112331c65bed167512f5dc8915966.m.pipedream.net/createPaymentIntent',
+        '',
       );
 
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'amount': 1000, // 1000 cents = 10.00 CAD
+          'amount': 1000, 
           'currency': 'cad',
         }),
       );
@@ -44,29 +41,27 @@ class _PaymentScreenState extends State<PaymentScreen> {
         throw Exception('Missing clientSecret from backend response');
       }
 
-      // 2. Initialize the payment sheet
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: clientSecret,
           merchantDisplayName: 'She Travels',
-          style: ThemeMode.system, // Matches system theme
+          style: ThemeMode.system, 
         ),
       );
 
-      // 3. Present the payment sheet
       await Stripe.instance.presentPaymentSheet();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Payment successful ✅')),
+        SnackBar(content: Text('Payment successful ')),
       );
     } on StripeException catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Payment cancelled ❌')),
+        SnackBar(content: Text('Payment cancelled ')),
       );
     } catch (e) {
       debugPrint('Payment error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Payment failed ⚠️')),
+        SnackBar(content: Text('Payment failed ')),
       );
     } finally {
       setState(() => _loading = false);

@@ -61,7 +61,6 @@ Widget buildExportFAB({
   ) {
     List<QueryDocumentSnapshot> filtered = docs;
 
-    // Apply search filter
     if (searchQuery.isNotEmpty) {
       filtered =
           filtered.where((doc) {
@@ -74,7 +73,6 @@ Widget buildExportFAB({
           }).toList();
     }
 
-    // Apply date filter
     if (selectedFilter != 'All') {
       final now = DateTime.now();
       filtered =
@@ -128,10 +126,8 @@ Future<void> exportBookingsToCSV(
     String csvData = const ListToCsvConverter().convert(rows);
 
     if (kIsWeb) {
-      // For web, download the file
       downloadCSVWeb(csvData);
     } else {
-      // For mobile, save to device
       await saveCSVMobile(csvData);
     }
 
@@ -143,9 +139,7 @@ Future<void> exportBookingsToCSV(
 
 
   void downloadCSVWeb(String csvData) {
-    // Web download implementation would go here
-    // This is a placeholder for the web download logic
-    print("✅ CSV prepared for web download");
+    print(" CSV prepared for web download");
   }
 
   Future<void> saveCSVMobile(String csvData) async {
@@ -154,7 +148,7 @@ Future<void> exportBookingsToCSV(
       final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
       final file = File('${directory!.path}/bookings_$timestamp.csv');
       await file.writeAsString(csvData);
-      print("✅ Exported to ${file.path}");
+      print(" Exported to ${file.path}");
     } else {
       throw Exception('Storage permission denied');
     }

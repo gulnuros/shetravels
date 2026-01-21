@@ -7,19 +7,17 @@ import 'package:shetravels/utils/route.gr.dart';
 class AuthAwareLoginButton extends StatelessWidget {
   final _auth = FirebaseAuth.instance;
 
+  const AuthAwareLoginButton({super.key});
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
       stream: _auth.authStateChanges(),
       builder: (context, snapshot) {
         final user = snapshot.data;
-
-        // If user is logged in → show SizedBox
         if (user != null) {
           return const SizedBox.shrink();
         }
-
-        // If user is not logged in → show Login button
         return GestureDetector(
           onTap: () => context.router.push(LoginRoute()),
           child: Container(

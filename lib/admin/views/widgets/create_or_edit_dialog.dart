@@ -18,18 +18,17 @@ StatefulBuilder createOrEditDialog(
   TextEditingController locationController,
   TextEditingController priceController,
   TextEditingController descController,
-  TextEditingController slotsController, // 🆕 Added slots controller
+  TextEditingController slotsController, 
   Uint8List? imageBytes,
   String? imageUrl,
   bool isUploading,
   WidgetRef ref,
 ) {
-  // Initialize controllers with existing event data if editing
+
   if (isEditing && existingEvent != null) {
     final priceInDollars = existingEvent.price / 100.0;
     priceController.text = priceInDollars.toStringAsFixed(2);
-    slotsController.text = existingEvent.availableSlots.toString(); // 🆕 Initialize slots
-  }
+    slotsController.text = existingEvent.availableSlots.toString(); }
 
   return StatefulBuilder(
     builder:
@@ -71,7 +70,6 @@ StatefulBuilder createOrEditDialog(
                         borderRadius: BorderRadius.circular(24),
                         child: Column(
                           children: [
-                            // ===== Header =====
                             Container(
                               padding: const EdgeInsets.all(24),
                               decoration: BoxDecoration(
@@ -122,7 +120,6 @@ StatefulBuilder createOrEditDialog(
                               ),
                             ),
 
-                            // ===== Content =====
                             Expanded(
                               child: SingleChildScrollView(
                                 padding: const EdgeInsets.all(24),
@@ -136,8 +133,6 @@ StatefulBuilder createOrEditDialog(
                                       hint: "Enter event name",
                                     ),
                                     const SizedBox(height: 20),
-
-                                    // Date (Calendar Picker)
                                     GestureDetector(
                                       onTap: () async {
                                         DateTime? initialDate = DateTime.now();
@@ -195,8 +190,6 @@ StatefulBuilder createOrEditDialog(
                                       hint: "Event venue",
                                     ),
                                     const SizedBox(height: 20),
-
-                                    // 🆕 Price and Slots in a Row
                                     Row(
                                       children: [
                                        Expanded(
@@ -204,7 +197,7 @@ StatefulBuilder createOrEditDialog(
     controller: priceController,
     label: "Price",
     icon: Icons.attach_money,
-    hint: "CAD 0.00", // shows currency in hint
+    hint: "CAD 0.00", 
     keyboardType: TextInputType.number,
   ),
 ),
@@ -231,8 +224,6 @@ StatefulBuilder createOrEditDialog(
                                       maxLines: 3,
                                     ),
                                     const SizedBox(height: 24),
-
-                                    // ===== Image Upload Section =====
                                     Container(
                                       padding: const EdgeInsets.all(20),
                                       decoration: BoxDecoration(
@@ -261,15 +252,11 @@ StatefulBuilder createOrEditDialog(
                                             ),
                                           ),
                                           const SizedBox(height: 16),
-
-                                          // Preview
                                           buildImagePreview(
                                             imageBytes,
                                             imageUrl,
                                           ),
                                           const SizedBox(height: 16),
-
-                                          // Buttons
                                           Row(
                                             children: [
                                               Expanded(
@@ -292,15 +279,15 @@ StatefulBuilder createOrEditDialog(
                                                                   imageQuality:
                                                                       85,
                                                                 );
-                                                            if (picked == null)
+                                                            if (picked == null) {
                                                               return;
+                                                            }
                                                             final bytes =
                                                                 await picked
                                                                     .readAsBytes();
                                                             setStateDialog(() {
                                                               imageBytes =
                                                                   bytes;
-                                                              // Don't clear imageUrl immediately for editing
                                                             });
                                                           },
                                                   icon: Icons.photo_library,
@@ -406,8 +393,6 @@ StatefulBuilder createOrEditDialog(
                                     ),
 
                                     const SizedBox(height: 32),
-
-                                    // ===== Actions =====
                                     Row(
                                       children: [
                                         Expanded(
@@ -463,7 +448,6 @@ StatefulBuilder createOrEditDialog(
                                                   isUploading
                                                       ? null
                                                       : () async {
-                                                        // Validate title
                                                         if (titleController.text
                                                             .trim()
                                                             .isEmpty) {
@@ -474,7 +458,6 @@ StatefulBuilder createOrEditDialog(
                                                           return;
                                                         }
                                                         
-                                                        // Validate date
                                                         if (dateController.text
                                                             .trim()
                                                             .isEmpty) {
@@ -484,8 +467,6 @@ StatefulBuilder createOrEditDialog(
                                                           );
                                                           return;
                                                         }
-                                                        
-                                                        // Validate image
                                                         if (imageUrl == null) {
                                                           showErrorSnackBar(
                                                             "Please upload an image",
@@ -493,8 +474,6 @@ StatefulBuilder createOrEditDialog(
                                                           );
                                                           return;
                                                         }
-
-                                                        // Validate and parse price
                                                         final priceText =
                                                             priceController.text
                                                                 .trim()
@@ -523,10 +502,7 @@ StatefulBuilder createOrEditDialog(
                                                             context,
                                                           );
                                                           return;
-                                                        }
-
-                                                        // 🆕 Validate and parse slots
-                                                        final slotsText = slotsController.text.trim();
+                                                        }  final slotsText = slotsController.text.trim();
                                                         if (slotsText.isEmpty) {
                                                           showErrorSnackBar(
                                                             "Please enter the number of available slots",
@@ -561,7 +537,7 @@ StatefulBuilder createOrEditDialog(
                                                           description: descController.text.trim(),
                                                           location: locationController.text.trim(),
                                                           price: priceInCents,
-                                                          availableSlots: parsedSlots, // 🆕 Include slots
+                                                          availableSlots: parsedSlots, 
                                                           imageUrl: imageUrl!,
                                                         );
 

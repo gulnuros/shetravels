@@ -299,7 +299,7 @@ SnackBar resetPasswordSuccess(BuildContext context) {
       textColor: Colors.white,
       onPressed: () {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        Navigator.of(context).pop(); // Go back to login
+        Navigator.of(context).pop(); 
       },
     ),
   );

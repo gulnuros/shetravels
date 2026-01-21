@@ -1,6 +1,4 @@
-// lib/repositories/payment_repository.dart
 import 'dart:convert';
-import 'dart:html' as html; // For web redirection
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -9,10 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'package:shetravels/web_redirect_web.dart';
-import 'dart:io';
-import 'dart:html' as html show window; // For web localStorage
 
-const String _baseUrl = 'https://eopunno0qlel5e2.m.pipedream.net';
+// TODO: After deploying Cloud Functions, update this with your actual function URL
+// Example: 'https://us-central1-she-travels-5578a.cloudfunctions.net'
+const String _baseUrl = 'https://us-central1-she-travels-5578a.cloudfunctions.net';
 
 final paymentRepositoryProvider = Provider<PaymentRepository>((ref) {
   return PaymentRepository(FirebaseAuth.instance, FirebaseFirestore.instance);
@@ -24,11 +22,10 @@ class PaymentRepository {
 
   PaymentRepository(this._auth, this._firestore);
 
-  // REFACTOR handlePayment - remove duplicate booking creation
   Future<String> handlePayment({
     required int amount,
     required String eventName,
-    required String bookingId, // ADD THIS PARAMETER
+    required String bookingId, 
     Map<String, String>? metadata,
   }) async {
     final user = _auth.currentUser;
@@ -39,7 +36,6 @@ class PaymentRepository {
 
     try {
       if (kIsWeb) {
-        // Web: create Stripe Checkout session
         await _handleWebPayment(
           bookingId,
           amount,
@@ -50,7 +46,6 @@ class PaymentRepository {
         );
         return bookingId;
       } else {
-        // Mobile: create PaymentIntent and show Payment Sheet
         await _handleMobilePayment(
           bookingId,
           amount,
@@ -62,9 +57,7 @@ class PaymentRepository {
         return bookingId;
       }
     } catch (e) {
-      debugPrint('❌ Payment flow error: $e');
-
-      // Update booking status to failed
+      debugPrint(' Payment flow error: $e');
       try {
         await _firestore.collection('bookings').doc(bookingId).update({
           'status': 'failed',
@@ -80,7 +73,6 @@ class PaymentRepository {
     }
   }
 
-  // ADD THIS NEW METHOD - Create booking separately
   Future<String> createBooking({
     required String eventName,
     required int amount,
@@ -106,7 +98,7 @@ class PaymentRepository {
     };
 
     await bookingRef.set(bookingData);
-    debugPrint('✅ Booking document created: ${bookingRef.id}');
+    debugPrint(' Booking document created: ${bookingRef.id}');
 
     return bookingRef.id;
   }
@@ -131,9 +123,9 @@ class PaymentRepository {
       'metadata': metadata ?? {},
     });
 
-    debugPrint('🌐 Creating checkout session for booking: $bookingId');
-    debugPrint('📤 Request URL: $url'); // ADD THIS
-    debugPrint('📤 Request payload: $payload'); // ADD THIS
+    debugPrint(' Creating checkout session for booking: $bookingId');
+    debugPrint(' Request URL: $url'); 
+    debugPrint(' Request payload: $payload'); 
 
     final response = await http.post(
       url,
@@ -144,41 +136,38 @@ class PaymentRepository {
       body: payload,
     );
 
-    debugPrint('📥 Response status: ${response.statusCode}'); // ADD THIS
-    debugPrint('📥 Response body: ${response.body}'); // ADD THIS
+    debugPrint(' Response status: ${response.statusCode}'); 
+    debugPrint(' Response body: ${response.body}'); 
 
     if (response.statusCode != 200) {
-      debugPrint('❌ Checkout session creation failed: ${response.body}');
+      debugPrint(' Checkout session creation failed: ${response.body}');
       throw Exception('Failed to create checkout session: ${response.body}');
     }
 
     final jsonResponse = json.decode(response.body);
-    debugPrint('📥 Parsed response: $jsonResponse'); // ADD THIS
+    debugPrint(' Parsed response: $jsonResponse'); 
 
     final checkoutUrl = jsonResponse['checkoutUrl'] as String?;
 
     if (checkoutUrl == null || checkoutUrl.isEmpty) {
-      // ADD MORE DEBUG INFO
-      debugPrint('❌ Available keys in response: ${jsonResponse.keys}');
+      debugPrint(' Available keys in response: ${jsonResponse.keys}');
       throw Exception(
         'No checkoutUrl returned from server. Response: $jsonResponse',
       );
     }
 
-    debugPrint('✅ Checkout session created. Redirecting to: $checkoutUrl');
+    debugPrint(' Checkout session created. Redirecting to: $checkoutUrl');
 
-    // Import and use your web redirect function
     openCheckoutUrl(checkoutUrl);
   }
 
-  // FIX _handleMobilePayment signature and add payment verification
   Future<void> _handleMobilePayment(
     String bookingId,
     int amount,
     String userId,
     String userEmail,
     String eventName, {
-    Map<String, String>? metadata, // FIX: Make it optional named parameter
+    Map<String, String>? metadata, 
   }) async {
     final url = Uri.parse('$_baseUrl/createPaymentIntent');
 
@@ -204,23 +193,22 @@ class PaymentRepository {
     );
 
     if (response.statusCode != 200) {
-      debugPrint('❌ Payment intent creation failed: ${response.body}');
+      debugPrint(' Payment intent creation failed: ${response.body}');
       throw Exception('Failed to create payment intent: ${response.body}');
     }
 
     final jsonResponse = json.decode(response.body);
     final clientSecret = jsonResponse['clientSecret'] as String?;
     final paymentIntentId =
-        jsonResponse['paymentIntentId'] as String?; // ADD THIS
+        jsonResponse['paymentIntentId'] as String?; 
 
     if (clientSecret == null) {
       throw Exception('No clientSecret returned from server.');
     }
 
-    debugPrint('✅ Payment intent created. Initializing payment sheet...');
+    debugPrint(' Payment intent created. Initializing payment sheet...');
 
     try {
-      // Initialize Payment Sheet
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: clientSecret,
@@ -232,17 +220,12 @@ class PaymentRepository {
         ),
       );
 
-      // Present Payment Sheet
       await Stripe.instance.presentPaymentSheet();
 
-      debugPrint('✅ Payment sheet completed successfully');
-
-      // ADD THIS: Update booking status immediately after successful payment
+      debugPrint(' Payment sheet completed successfully');
       await Future.delayed(
         const Duration(seconds: 1),
-      ); // Brief delay for Stripe processing
-
-      // Update booking to paid status
+      ); 
       await _firestore.collection('bookings').doc(bookingId).update({
         'status': 'paid',
         'stripePaymentIntentId': paymentIntentId,
@@ -250,12 +233,11 @@ class PaymentRepository {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      debugPrint('✅ Booking marked as paid');
+      debugPrint(' Booking marked as paid');
     } on StripeException catch (e) {
-      debugPrint('❌ Stripe payment error: ${e.error}');
+      debugPrint(' Stripe payment error: ${e.error}');
 
       if (e.error.type == 'canceled') {
-        // User canceled - update booking status
         await _firestore.collection('bookings').doc(bookingId).update({
           'status': 'cancelled',
           'error': 'user_cancelled',
@@ -263,7 +245,6 @@ class PaymentRepository {
         });
         throw Exception('Payment was cancelled by user');
       } else {
-        // Payment failed - update booking status
         await _firestore.collection('bookings').doc(bookingId).update({
           'status': 'failed',
           'error': 'stripe_error',
@@ -331,7 +312,6 @@ class PaymentRepository {
     }
   }
 
-  // New method to get booking status by ID
   Future<Map<String, dynamic>?> getBookingById(String bookingId) async {
     try {
       final doc = await _firestore.collection('bookings').doc(bookingId).get();
@@ -342,12 +322,10 @@ class PaymentRepository {
     }
   }
 
-  // New method to listen to booking status changes
   Stream<DocumentSnapshot> watchBookingStatus(String bookingId) {
     return _firestore.collection('bookings').doc(bookingId).snapshots();
   }
 
-  // Method to retry failed payments
   Future<void> retryPayment(String bookingId) async {
     try {
       final booking = await getBookingById(bookingId);
@@ -359,7 +337,6 @@ class PaymentRepository {
         throw Exception('Booking is not in a retryable state');
       }
 
-      // Reset booking status to pending
       await _firestore.collection('bookings').doc(bookingId).update({
         'status': 'pending',
         'error': null,
@@ -368,11 +345,10 @@ class PaymentRepository {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      // Retry the payment flow - ADD bookingId parameter
       await handlePayment(
         amount: booking['amount'],
         eventName: booking['eventName'],
-        bookingId: bookingId, // ADD THIS LINE
+        bookingId: bookingId, 
         metadata: {'bookingId': bookingId, 'eventName': booking['eventName']},
       );
     } catch (e) {

@@ -6,7 +6,7 @@ import 'package:shetravels/admin/data/models/memory.dart';
 
 
 class MemoriesSection extends StatefulWidget {
-  const MemoriesSection({Key? key}) : super(key: key);
+  const MemoriesSection({super.key});
 
   @override
   State<MemoriesSection> createState() => _MemoriesSectionState();

@@ -4,7 +4,6 @@ import 'package:shetravels/admin/data/controller/event_controller.dart';
 import 'package:shetravels/admin/data/event_model.dart';
 import 'package:shetravels/admin/views/widgets/build_event.dart';
 
-/// Mobile: stacked layout
 Widget buildMobileLayout(
   Event event,
   BuildContext context,
@@ -29,7 +28,6 @@ Widget buildMobileLayout(
   );
 }
 
-/// Desktop/Tablet: side-by-side layout
 Widget buildDesktopLayout(
   Event event,
   BuildContext context,
@@ -56,7 +54,6 @@ Widget buildDesktopLayout(
   );
 }
 
-/// Event image with shimmer loading & fallback
 Widget _buildEventImage(Event event) {
   return Stack(
     children: [

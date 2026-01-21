@@ -77,11 +77,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen>
         password: _passwordController.text.trim(),
       );
 
-      // Admin authorization check
-      if (
-      //  credential.user!.email != "ummihabib88@gmail.com"
-      //||
-      credential.user!.email != "oleksandradzhus@gmail.com") {
+      if (credential.user!.email != "oleksandradzhus@gmail.com") {
         throw FirebaseAuthException(
           code: "unauthorized",
           message: "Not authorized as admin",
@@ -98,7 +94,6 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen>
     setState(() => _isLoading = false);
   }
 
-  // Helper method to get responsive dimensions
   Map<String, double> _getResponsiveDimensions(Size size) {
     final bool isMobile = size.width < 600;
     final bool isTablet = size.width >= 600 && size.width < 1200;
@@ -161,19 +156,14 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Flexible spacing for better layout on different screens
                           if (!isMobile) const Spacer(flex: 1),
 
-                          // Logo and Brand Section
-                         
-                         
                           Container(
                             margin: EdgeInsets.only(
                               bottom: dimensions['extraLargeSpacing']!,
                             ),
                             child: Column(
                               children: [
-                                // Logo Container
                                 Container(
                                   width: dimensions['logoSize'],
                                   height: dimensions['logoSize'],
@@ -239,8 +229,6 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen>
                             ),
                           ),
 
-
-                          // Login Form Card
                           Container(
                             padding: EdgeInsets.all(dimensions['cardPadding']!),
                             decoration: BoxDecoration(
@@ -283,7 +271,6 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen>
                                   ),
                                   SizedBox(height: dimensions['largeSpacing']!),
 
-                                  // Error Message
                                   if (_error != null) ...[
                                     Container(
                                       padding: EdgeInsets.all(
@@ -323,7 +310,6 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen>
                                     SizedBox(height: dimensions['spacing']!),
                                   ],
 
-                                  // Email Field
                                   TextFormField(
                                     controller: _emailController,
                                     keyboardType: TextInputType.emailAddress,
@@ -387,7 +373,6 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen>
                                   ),
                                   SizedBox(height: dimensions['spacing']!),
 
-                                  // Password Field
                                   TextFormField(
                                     controller: _passwordController,
                                     obscureText: _obscurePassword,
@@ -461,7 +446,6 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen>
                                   ),
                                   SizedBox(height: dimensions['largeSpacing']!),
 
-                                  // Login Button
                                   Container(
                                     height: dimensions['buttonHeight'],
                                     decoration: BoxDecoration(
@@ -527,7 +511,6 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen>
 
                           SizedBox(height: dimensions['largeSpacing']!),
 
-                          // Footer
                           Text(
                             "Empowering women to explore the world safely",
                             textAlign: TextAlign.center,
@@ -537,7 +520,6 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen>
                             ),
                           ),
 
-                          // Flexible spacing for better layout on larger screens
                           if (!isMobile) const Spacer(flex: 1),
                         ],
                       ),

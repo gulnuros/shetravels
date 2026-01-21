@@ -29,15 +29,10 @@ class LandingPageWeb extends StatefulHookConsumerWidget {
 }
 
 class _LandingPageWebState extends ConsumerState<LandingPageWeb> {
-  //bool _hasShownPopup = false;
   @override
   void initState() {
     super.initState();
-    // Delay showing popup to allow widget tree to build completely
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // if (mounted && !_hasShownPopup) {
-      //   _checkAndShowUpcomingEventsPopup();
-      // }
     });
   }
 
@@ -87,19 +82,12 @@ class _LandingPageWebState extends ConsumerState<LandingPageWeb> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header with close button
                 _buildPopupHeader(),
                 const SizedBox(height: 16),
-
-                // Description
                 _buildPopupDescription(),
                 const SizedBox(height: 20),
-
-                // Event preview
                 _buildEventPreview(event),
                 const SizedBox(height: 24),
-
-                // Action buttons
                 _buildPopupActions(),
               ],
             ),
@@ -188,11 +176,8 @@ class _LandingPageWebState extends ConsumerState<LandingPageWeb> {
       ),
       child: Row(
         children: [
-          // Event image
           _buildEventImage(event),
           const SizedBox(width: 16),
-
-          // Event details
           Expanded(child: _buildEventDetails(event)),
         ],
       ),
@@ -329,7 +314,6 @@ class _LandingPageWebState extends ConsumerState<LandingPageWeb> {
   Widget _buildPopupActions() {
     return Row(
       children: [
-        // Dismiss button
         OutlinedButton(
           style: OutlinedButton.styleFrom(
             side: BorderSide(color: Colors.grey.shade300),
@@ -352,8 +336,6 @@ class _LandingPageWebState extends ConsumerState<LandingPageWeb> {
           ),
         ),
         const SizedBox(width: 12),
-
-        // View all button
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.pink.shade400,
@@ -401,13 +383,11 @@ Navigator.of(context).pop();
   }
 
   String? _getEventImageUrl(Event event) {
-    if (event == null) return null;
-    return event.imageUrl?.toString() ?? '';
+    return event.imageUrl.toString() ?? '';
   }
 
   String _getEventTitle(Event event) {
-    if (event == null) return "Upcoming Event";
-    return event.title?.toString() ?? ''
+    return event.title.toString() ?? ''
         "Upcoming Event";
   }
 
@@ -445,23 +425,6 @@ Navigator.of(context).pop();
 
   @override
   Widget build(BuildContext context) {
-    // ref.listen<AsyncValue>(upcomingEventsProvider, (previous, next) {
-    //   if (!_hasShownPopup && mounted) {
-    //     next.whenOrNull(
-    //       data: (events) {
-    //         if (events != null && events.isNotEmpty) {
-    //           WidgetsBinding.instance.addPostFrameCallback((_) {
-    //             if (mounted && !_hasShownPopup) {
-    //               _hasShownPopup = true;
-    //               _showUpcomingEventsPopup(events.first);
-    //             }
-    //           });
-    //         }
-    //       },
-    //     );
-    //   }
-    // });
-
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -595,16 +558,15 @@ Navigator.of(context).pop();
   }
 
   Widget _buildSection({required String key, required Widget child}) {
-    return Container(
+    return SizedBox(
       key: _sectionKeys[key],
-      //  padding: EdgeInsets.symmetric(vertical: 60, horizontal: 24),
       width: double.infinity,
       child: child,
     );
   }
 
   Widget _buildHeroSection() {
-    return Container(
+    return SizedBox(
       height: 700,
       width: MediaQuery.of(context).size.width,
       child: Stack(

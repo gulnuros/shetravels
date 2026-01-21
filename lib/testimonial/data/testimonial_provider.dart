@@ -1,9 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shetravels/she_travel_web.dart';
 import 'package:shetravels/testimonial/data/model/testimonial.dart';
 import 'package:shetravels/testimonial/data/testimonial_repository.dart';
 
-// State class for testimonials
 class TestimonialState {
   final List<Testimonial> testimonials;
   final bool isLoading;
@@ -28,7 +26,6 @@ class TestimonialState {
   }
 }
 
-// Notifier class
 class TestimonialNotifier extends StateNotifier<TestimonialState> {
   TestimonialNotifier() : super(const TestimonialState(isLoading: true)) {
     _loadTestimonials();
@@ -52,7 +49,6 @@ class TestimonialNotifier extends StateNotifier<TestimonialState> {
   Future<void> addTestimonial(Testimonial testimonial) async {
     try {
       await TestimonialRepository.addTestimonial(testimonial);
-      // The stream will automatically update the state
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -61,7 +57,6 @@ class TestimonialNotifier extends StateNotifier<TestimonialState> {
   Future<void> removeTestimonial(String id) async {
     try {
       await TestimonialRepository.removeTestimonial(id);
-      // The stream will automatically update the state
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -72,13 +67,11 @@ class TestimonialNotifier extends StateNotifier<TestimonialState> {
   }
 }
 
-// Provider
 final testimonialProvider =
     StateNotifierProvider<TestimonialNotifier, TestimonialState>(
       (ref) => TestimonialNotifier(),
     );
 
-// Alternative: Using StreamProvider (simpler approach)
 final testimonialsStreamProvider = StreamProvider<List<Testimonial>>((ref) {
   return TestimonialRepository.getTestimonialsStream();
 });

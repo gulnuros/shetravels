@@ -1,0 +1,11 @@
+{
+  "name": "shetravels-scripts",
+  "version": "1.0.0",
+  "description": "Scripts to populate Firestore with data",
+  "scripts": {
+    "upload": "node upload-data.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}

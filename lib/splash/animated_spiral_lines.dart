@@ -9,13 +9,13 @@ class AnimatedLoadingSpiralLines extends StatefulWidget {
   final double size;
 
   const AnimatedLoadingSpiralLines({
-    Key? key,
+    super.key,
     this.numberOfLines = 5,
     this.baseRadius = 10.0,
     this.color = Colors.black,
     this.strokeWidth = 2.0,
-    this.size = 100.0, // default size
-  }) : super(key: key);
+    this.size = 100.0, 
+  });
 
   @override
   State<AnimatedLoadingSpiralLines> createState() =>

@@ -7,7 +7,6 @@ class NewsletterRepository {
   static const String subscribersCollection = 'newsletter_subscribers';
   static const String newslettersCollection = 'newsletters';
 
-  // Subscribe to newsletter
   Future<bool> subscribeToNewsletter({
     required String email,
     String? firstName,
@@ -37,7 +36,6 @@ class NewsletterRepository {
     }
   }
 
-  // Check if email is already subscribed
   Future<bool> isEmailSubscribed(String email) async {
     try {
       final querySnapshot = await _firestore
@@ -53,7 +51,6 @@ class NewsletterRepository {
     }
   }
 
-  // Get all subscribers (Admin)
   Stream<List<NewsletterSubscriber>> getAllSubscribers() {
     return _firestore
         .collection(subscribersCollection)
@@ -66,7 +63,6 @@ class NewsletterRepository {
     });
   }
 
-  // Get active subscribers count
   Future<int> getActiveSubscribersCount() async {
     try {
       final querySnapshot = await _firestore
@@ -79,8 +75,6 @@ class NewsletterRepository {
       return 0;
     }
   }
-
-  // Unsubscribe
   Future<bool> unsubscribeEmail(String email) async {
     try {
       final querySnapshot = await _firestore
@@ -99,7 +93,6 @@ class NewsletterRepository {
     }
   }
 
-  // Admin: Create newsletter
   Future<String> createNewsletter(Newsletter newsletter) async {
     try {
       final docRef = await _firestore
@@ -111,8 +104,6 @@ class NewsletterRepository {
       throw Exception('Failed to create newsletter: $e');
     }
   }
-
-  // Admin: Get all newsletters
   Stream<List<Newsletter>> getAllNewsletters() {
     return _firestore
         .collection(newslettersCollection)
@@ -125,7 +116,6 @@ class NewsletterRepository {
     });
   }
 
-  // Admin: Update newsletter
   Future<bool> updateNewsletter(String id, Map<String, dynamic> updates) async {
     try {
       await _firestore
@@ -138,7 +128,6 @@ class NewsletterRepository {
     }
   }
 
-  // Admin: Delete newsletter
   Future<bool> deleteNewsletter(String id) async {
     try {
       await _firestore

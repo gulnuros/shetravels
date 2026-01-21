@@ -47,23 +47,17 @@ class _UpcomingToursState extends ConsumerState<UpcomingTours> {
         final data = snapshot.data ?? {'hasBooked': false, 'bookedCount': 0};
         final hasBooked = data['hasBooked'] as bool;
         final bookedCount = data['bookedCount'] as int;
-        
-        // Calculate remaining slots using bookedCount
         final remainingSlots = event.availableSlots - bookedCount;
         final isSoldOut = remainingSlots <= 0;
-
-        // Check if user is already subscribed (fallback check)
         final isUserSubscribed = event.subscribedUsers?.contains(userId) ?? false;
 
         if (hasBooked || isUserSubscribed) {
-          // Show countdown if user has booked
           final countdown = paymentProvider.countdown(event.date);
           final days = countdown['days'] ?? 0;
           final hours = countdown['hours'] ?? 0;
           final minutes = countdown['minutes'] ?? 0;
 
           if (days <= 0 && hours <= 0 && minutes <= 0) {
-            // Event has passed or is happening now
             return Container(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
               decoration: BoxDecoration(
@@ -148,8 +142,6 @@ class _UpcomingToursState extends ConsumerState<UpcomingTours> {
             ),
           );
         }
-
-        // Show sold out or book button
         if (isSoldOut) {
           return Container(
             padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
@@ -175,8 +167,6 @@ class _UpcomingToursState extends ConsumerState<UpcomingTours> {
             ),
           );
         }
-
-        // Show book button if not booked and slots available
         return Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -314,7 +304,6 @@ ref.refresh(upcomingEventsProvider);
                                   builder: (context, snapshot) {
                                     final bookedCount = snapshot.data ?? 0;
                                     
-                                    // Calculate remaining slots using getBookedCount
                                     final remainingSlots = event.availableSlots - bookedCount;
                                     final isSoldOut = remainingSlots <= 0;
                                     final isLowStock = remainingSlots <= 5 && remainingSlots > 0;
@@ -337,7 +326,6 @@ ref.refresh(upcomingEventsProvider);
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          // Image with overlay badges
                                           Stack(
                                             children: [
                                               ClipRRect(
@@ -385,7 +373,6 @@ ref.refresh(upcomingEventsProvider);
                                                 ),
                                               ),
 
-                                              // Price badge
                                               Positioned(
                                                 top: 12,
                                                 right: 12,
@@ -437,8 +424,6 @@ ref.refresh(upcomingEventsProvider);
                                                   ),
                                                 ),
                                               ),
-
-                                              // Slots badge
                                               Positioned(
                                                 top: 12,
                                                 left: 12,
@@ -497,7 +482,6 @@ ref.refresh(upcomingEventsProvider);
 
                                           const SizedBox(height: 20),
 
-                                          // Event title
                                           Text(
                                             event.title,
                                             style: GoogleFonts.poppins(
@@ -507,8 +491,6 @@ ref.refresh(upcomingEventsProvider);
                                             ),
                                           ),
                                           const SizedBox(height: 12),
-
-                                          // Date and location row
                                           Row(
                                             children: [
                                               Icon(
@@ -547,8 +529,6 @@ ref.refresh(upcomingEventsProvider);
                                             ],
                                           ),
                                           const SizedBox(height: 12),
-
-                                          // Slots info row
                                           Container(
                                             padding: const EdgeInsets.symmetric(
                                               horizontal: 16,
@@ -620,8 +600,6 @@ ref.refresh(upcomingEventsProvider);
                                             ),
                                           ),
                                           const SizedBox(height: 16),
-
-                                          // Description
                                           Text(
                                             event.description,
                                             style: GoogleFonts.poppins(
@@ -633,14 +611,11 @@ ref.refresh(upcomingEventsProvider);
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                           const SizedBox(height: 20),
-
-                                          // Dynamic action button based on user authentication and booking status
-                                          Consumer(
+   Consumer(
                                             builder: (context, ref, child) {
                                               final user = FirebaseAuth.instance.currentUser;
 
                                               if (user == null) {
-                                                // User not logged in - show login button
                                                 return Container(
                                                   decoration: BoxDecoration(
                                                     gradient: LinearGradient(
@@ -714,16 +689,13 @@ ref.refresh(upcomingEventsProvider);
                                                                   .instance
                                                                   .currentUser !=
                                                               null) {
-                                                        // Trigger a rebuild to show the correct button state
-                                                        // The Consumer will automatically rebuild when auth state changes
                                                       }
                                                     },
                                                   ),
                                                 );
                                               }
 
-                                              // User is logged in - show appropriate button
-                                              return _buildActionButton(
+                                             return _buildActionButton(
                                                 context: context,
                                                 userId: user.uid,
                                                 event: event,

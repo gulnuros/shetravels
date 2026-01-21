@@ -64,7 +64,6 @@ class _AdminManageEventScreenState extends ConsumerState<AdminManageEventScreen>
         child: SafeArea(
           child: Column(
             children: [
-              // Custom Header
               SlideTransition(
                 position: Tween<Offset>(
                   begin: const Offset(0, -1),
@@ -162,8 +161,6 @@ class _AdminManageEventScreenState extends ConsumerState<AdminManageEventScreen>
           ),
         ),
       ),
-
-      // Floating Action Button
       floatingActionButton:
           eventManager.currentUser != null && !eventManager.isLoading
               ? floatingActionWidget(

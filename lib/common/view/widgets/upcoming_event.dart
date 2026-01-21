@@ -24,7 +24,6 @@ Widget buildUpcomingEventsSection(WidgetRef ref) {
     padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 20),
     child: Column(
       children: [
-        // Title with glassmorphism effect
         Container(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           decoration: BoxDecoration(
@@ -66,7 +65,6 @@ Widget buildUpcomingEventsSection(WidgetRef ref) {
         ),
         const SizedBox(height: 40),
 
-        // Events list with proper state handling
         Consumer(
           builder: (context, ref, child) {
             final eventsAsync = ref.watch(upcomingEventsProvider);
@@ -87,7 +85,6 @@ Widget buildUpcomingEventsSection(WidgetRef ref) {
   );
 }
 
-// Shimmer loading effect
 Widget _buildShimmerLoading() {
   return SizedBox(
     height: 400,
@@ -106,7 +103,6 @@ Widget _buildShimmerLoading() {
           ),
           child: Column(
             children: [
-              // Image placeholder
               Container(
                 height: 200,
                 decoration: BoxDecoration(
@@ -123,7 +119,6 @@ Widget _buildShimmerLoading() {
                   ),
                 ),
               ),
-              // Content placeholder
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -166,7 +161,7 @@ Widget _buildShimmerLoading() {
   );
 }
 
-// Error state
+
 Widget _buildErrorState(String error) {
   return Container(
     height: 300,
@@ -201,7 +196,6 @@ Widget _buildErrorState(String error) {
   );
 }
 
-// Empty state
 Widget _buildEmptyState() {
   return Container(
     height: 300,
@@ -247,7 +241,6 @@ Widget _buildEmptyState() {
   );
 }
 
-// Events list
 Widget _buildEventsList(List<Event> events, WidgetRef ref) {
   return SizedBox(
     height: 420,
@@ -271,15 +264,12 @@ Widget _buildEventCard(Event event, WidgetRef ref, BuildContext context) {
     builder: (context, snapshot) {
       final bookedCount = snapshot.data ?? 0;
       
-      // Calculate remaining slots using getBookedCount
       final remainingSlots = event.availableSlots - bookedCount;
       final isSoldOut = remainingSlots <= 0;
       final isLowStock = remainingSlots <= 5 && remainingSlots > 0;
 
       return GestureDetector(
         onTap: () {
-          // Navigate to details or booking page
-          // You can add your navigation logic here
         },
         child: Container(
           width: 320,
@@ -297,7 +287,6 @@ Widget _buildEventCard(Event event, WidgetRef ref, BuildContext context) {
             borderRadius: BorderRadius.circular(24),
             child: Stack(
               children: [
-                // Background image
                 Positioned.fill(
                   child: Image.network(
                     event.imageUrl,
@@ -314,8 +303,6 @@ Widget _buildEventCard(Event event, WidgetRef ref, BuildContext context) {
                     },
                   ),
                 ),
-
-                // Price tag in top-right corner
                 Positioned(
                   top: 16,
                   right: 16,
@@ -364,8 +351,6 @@ Widget _buildEventCard(Event event, WidgetRef ref, BuildContext context) {
                     ),
                   ),
                 ),
-
-                // Slots indicator in top-left corner
                 Positioned(
                   top: 16,
                   left: 16,
@@ -418,8 +403,6 @@ Widget _buildEventCard(Event event, WidgetRef ref, BuildContext context) {
                     ),
                   ),
                 ),
-
-                // Glassmorphism overlay
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
@@ -436,8 +419,6 @@ Widget _buildEventCard(Event event, WidgetRef ref, BuildContext context) {
                     ),
                   ),
                 ),
-
-                // Content
                 Positioned(
                   bottom: 0,
                   left: 0,
@@ -463,7 +444,6 @@ Widget _buildEventCard(Event event, WidgetRef ref, BuildContext context) {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Date chip
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
@@ -488,7 +468,6 @@ Widget _buildEventCard(Event event, WidgetRef ref, BuildContext context) {
                             ),
                             const SizedBox(height: 12),
 
-                            // Title
                             Text(
                               event.title,
                               style: GoogleFonts.poppins(
@@ -502,7 +481,6 @@ Widget _buildEventCard(Event event, WidgetRef ref, BuildContext context) {
                             ),
                             const SizedBox(height: 8),
 
-                            // Description
                             Text(
                               event.description,
                               style: GoogleFonts.poppins(
@@ -515,10 +493,8 @@ Widget _buildEventCard(Event event, WidgetRef ref, BuildContext context) {
                             ),
                             const SizedBox(height: 12),
 
-                            // Event details row (Location & Slots info)
                             Row(
                               children: [
-                                // Location
                                 Expanded(
                                   child: Row(
                                     children: [
@@ -544,7 +520,6 @@ Widget _buildEventCard(Event event, WidgetRef ref, BuildContext context) {
                                   ),
                                 ),
                                 
-                                // Slots info
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 8,
@@ -566,8 +541,6 @@ Widget _buildEventCard(Event event, WidgetRef ref, BuildContext context) {
                               ],
                             ),
                             const SizedBox(height: 16),
-
-                            // Book button
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
@@ -600,7 +573,6 @@ Widget _buildEventCard(Event event, WidgetRef ref, BuildContext context) {
 ref.refresh(upcomingEventsProvider);
 
                                         } catch (e) {
-                                          // Handle payment error
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
                                               content: Text(

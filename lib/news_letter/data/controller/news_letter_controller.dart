@@ -36,7 +36,6 @@ class NewsletterController extends StateNotifier<AsyncValue<void>> {
   }) async {
     state = const AsyncValue.loading();
     try {
-      // Check if already subscribed
       final isSubscribed = await _repository.isEmailSubscribed(email);
       if (isSubscribed) {
         state = AsyncValue.error(

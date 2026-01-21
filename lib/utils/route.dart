@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/material.dart';
 import 'package:shetravels/utils/route.gr.dart';
 import 'package:shetravels/utils/string.dart';
 
@@ -13,11 +12,9 @@ class AppRouter extends RootStackRouter {
       initial: true,
       path: RouteString.splashScreen,
     ),
-//
   AutoRoute(page: LoginRoute.page, path: RouteString.login),
     AutoRoute(page: SignupRoute.page, path: RouteString.signup),
      AutoRoute(page: ForgetPasswordRoute.page, path: RouteString.forgetPassword),
-    //
     AutoRoute(page: HomeRoute.page, path: RouteString.homeScreen),
     AutoRoute(page: AdminGalleryRoute.page, path: RouteString.adminGallery),
     AutoRoute(page: AdminMemoriesRoute.page, path: RouteString.adminMemories),

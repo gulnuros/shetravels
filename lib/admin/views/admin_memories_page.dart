@@ -238,8 +238,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
   Future<void> _deleteMemory(Memory memory) async {
     try {
       await _memoryCollection.doc(memory.id).delete();
-
-      // Try to delete image from storage
       try {
         final ref = FirebaseStorage.instance.refFromURL(memory.imageUrl);
         await ref.delete();
@@ -284,7 +282,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Header with Heart Animation
                       Row(
                         children: [
                           ScaleTransition(
@@ -344,7 +341,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                       ),
                       const SizedBox(height: 32),
 
-                      // Form Fields
                       _buildStyledTextField(
                         controller: _titleController,
                         label: 'Memory Title',
@@ -373,8 +369,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                                 val!.isEmpty ? 'Enter a description' : null,
                       ),
                       const SizedBox(height: 20),
-
-                      // Category Selection
                       Text(
                         'Memory Category',
                         style: TextStyle(
@@ -391,7 +385,7 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                           border: Border.all(color: Colors.grey[300]!),
                         ),
                         child: DropdownButtonFormField<String>(
-                          value: _selectedCategory,
+                          initialValue: _selectedCategory,
                           decoration: InputDecoration(
                             prefixIcon: Icon(
                               _categoryIcons[_selectedCategory],
@@ -429,8 +423,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                         ),
                       ),
                       const SizedBox(height: 24),
-
-                      // Image Upload Section
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
@@ -540,8 +532,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                         ),
                       ),
                       const SizedBox(height: 32),
-
-                      // Action Buttons
                       Row(
                         children: [
                           Expanded(
@@ -662,7 +652,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Close button
                   Align(
                     alignment: Alignment.topRight,
                     child: Container(
@@ -677,8 +666,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                       ),
                     ),
                   ),
-
-                  // Memory content
                   Expanded(
                     child: Container(
                       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -696,7 +683,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Image
                           Expanded(
                             flex: 2,
                             child: ClipRRect(
@@ -709,8 +695,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                               ),
                             ),
                           ),
-
-                          // Content
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.all(24),
@@ -784,8 +768,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                                       ),
                                     ),
                                   ),
-
-                                  // Category tag
                                   Container(
                                     alignment: Alignment.centerLeft,
                                     child: Container(
@@ -900,7 +882,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
             position: _slideAnimation,
             child: Column(
               children: [
-                // Header Section
                 Container(
                   padding: EdgeInsets.all(isWeb ? 32 : 20),
                   decoration: BoxDecoration(
@@ -975,8 +956,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                         ],
                       ),
                       const SizedBox(height: 20),
-
-                      // Search Bar
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.9),
@@ -1002,8 +981,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                     ],
                   ),
                 ),
-
-                // Content Section
                 Expanded(
                   child:
                       isLoading
@@ -1098,7 +1075,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Image Section
               Expanded(
                 flex: 3,
                 child: Stack(
@@ -1142,8 +1118,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                         ),
                       ),
                     ),
-
-                    // Category Badge
                     Positioned(
                       top: 12,
                       right: 12,
@@ -1189,8 +1163,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                         ),
                       ),
                     ),
-
-                    // Gradient Overlay at bottom
                     Positioned(
                       bottom: 0,
                       left: 0,
@@ -1209,8 +1181,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                         ),
                       ),
                     ),
-
-                    // Heart Icon
                     Positioned(
                       bottom: 12,
                       left: 12,
@@ -1230,8 +1200,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                   ],
                 ),
               ),
-
-              // Content Section
               Expanded(
                 flex: 2,
                 child: Padding(
@@ -1289,8 +1257,6 @@ class _AdminMemoriesScreenState extends State<AdminMemoriesScreen>
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-
-                      // Action Row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

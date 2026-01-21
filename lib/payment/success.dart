@@ -81,10 +81,9 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
   }
 
   void _startVerificationWithTimeout() {
-    // Set timeout for verification
     _timeoutTimer = Timer(_verificationTimeout, () {
       if (_isVerifying && mounted) {
-        debugPrint('⏰ Verification timeout reached');
+        debugPrint(' Verification timeout reached');
         _handleVerificationTimeout();
       }
     });
@@ -98,8 +97,6 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
       if (user == null) {
         throw Exception('User not authenticated');
       }
-
-      // Find or use provided booking ID
       String? bookingId = widget.bookingId;
       if (bookingId == null || bookingId.isEmpty) {
         bookingId = await _findRecentBooking(user.uid);
@@ -111,13 +108,8 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
 
       debugPrint('🔍 Verifying booking: $bookingId');
 
-      // Listen to real-time booking updates (webhook might update it)
       _listenToBookingStatus(bookingId);
-
-      // Wait for webhook to potentially update the status
       await Future.delayed(_webhookWaitTime);
-
-      // Check current booking status
       final bookingRef = FirebaseFirestore.instance
           .collection('bookings')
           .doc(bookingId);
@@ -131,23 +123,21 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
       final bookingData = bookingSnap.data()!;
       final currentStatus = bookingData['status'] as String?;
 
-      debugPrint('📊 Current booking status: $currentStatus');
+      debugPrint(' Current booking status: $currentStatus');
 
       if (currentStatus == 'paid') {
-        // Already paid by webhook - Success!
-        debugPrint('✅ Payment already confirmed by webhook');
+        debugPrint(' Payment already confirmed by webhook');
         _handlePaymentSuccess(bookingData);
       } else if (currentStatus == 'pending' || currentStatus == 'processing') {
-        // Webhook hasn't updated yet, update manually
-        debugPrint('⚠️ Webhook not updated yet, updating manually...');
+
+        debugPrint(' Webhook not updated yet, updating manually...');
         await _updateBookingStatus(bookingRef, bookingData);
       } else {
-        // Unexpected status
-        debugPrint('❓ Unexpected status: $currentStatus');
+        debugPrint(' Unexpected status: $currentStatus');
         throw Exception('Unexpected booking status: $currentStatus');
       }
     } catch (e) {
-      debugPrint('❌ Verification error: $e');
+      debugPrint(' Verification error: $e');
       _handleVerificationError(e.toString());
     }
   }
@@ -170,7 +160,7 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
             }
           },
           onError: (error) {
-            debugPrint('❌ Booking listener error: $error');
+            debugPrint(' Booking listener error: $error');
           },
         );
   }
@@ -178,8 +168,6 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
   Future<String?> _findRecentBooking(String userId) async {
     try {
       debugPrint('🔍 Searching for recent booking for user: $userId');
-
-      // Search for recent bookings (last 15 minutes)
       final fifteenMinutesAgo = DateTime.now().subtract(
         const Duration(minutes: 15),
       );
@@ -199,14 +187,14 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
 
       if (query.docs.isNotEmpty) {
         final bookingId = query.docs.first.id;
-        debugPrint('✅ Found booking: $bookingId');
+        debugPrint(' Found booking: $bookingId');
         return bookingId;
       }
 
-      debugPrint('❌ No recent booking found');
+      debugPrint(' No recent booking found');
       return null;
     } catch (e) {
-      debugPrint('❌ Error finding booking: $e');
+      debugPrint(' Error finding booking: $e');
       return null;
     }
   }
@@ -236,12 +224,12 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
 
       await bookingRef.update(updateData);
 
-      debugPrint('✅ Booking manually updated to paid');
+      debugPrint(' Booking manually updated to paid');
 
       final updatedData = {...currentData, ...updateData};
       _handlePaymentSuccess(updatedData);
     } catch (e) {
-      debugPrint('❌ Error updating booking: $e');
+      debugPrint(' Error updating booking: $e');
       throw Exception('Failed to update booking status: $e');
     }
   }
@@ -260,9 +248,7 @@ class _PaymentSuccessScreenState extends ConsumerState<PaymentSuccessScreen>
     });
 
     _animationController.forward();
-
-    // Refresh the events list so slots update
-    ref.refresh(upcomingEventsProvider); // << ADD THIS LINE
+    ref.refresh(upcomingEventsProvider); 
 
     _showSnackBar(
       'Booking confirmed successfully! 🎉',

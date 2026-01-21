@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 
 @RoutePage()
 class AddTestimonialPage extends StatefulWidget {
-  const AddTestimonialPage({Key? key}) : super(key: key);
+  const AddTestimonialPage({super.key});
 
   @override
   State<AddTestimonialPage> createState() => _AddTestimonialPageState();
@@ -247,7 +247,6 @@ class _AddTestimonialPageState extends State<AddTestimonialPage>
 
       if (mounted) {
         HapticFeedback.heavyImpact();
-        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Row(
@@ -360,7 +359,6 @@ class _AddTestimonialPageState extends State<AddTestimonialPage>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              // Header Section
                               Container(
                                 padding: const EdgeInsets.only(bottom: 24),
                                 child: Column(
@@ -405,8 +403,6 @@ class _AddTestimonialPageState extends State<AddTestimonialPage>
                                   ],
                                 ),
                               ),
-
-                              // Form Fields
                               _buildTextField(
                                 label: "Name",
                                 controller: _nameController,
@@ -430,13 +426,9 @@ class _AddTestimonialPageState extends State<AddTestimonialPage>
                               ),
 
                               const SizedBox(height: 8),
-
-                              // Rating Section
                               _buildRatingSection(),
 
                               const SizedBox(height: 32),
-
-                              // Submit Button
                               Container(
                                 height: 56,
                                 decoration: BoxDecoration(

@@ -9,7 +9,7 @@ import 'package:shetravels/news_letter/data/controller/news_letter_controller.da
 import 'package:url_launcher/url_launcher.dart';
 
 class NewsletterSubscriptionDialog extends ConsumerStatefulWidget {
-  const NewsletterSubscriptionDialog({Key? key}) : super(key: key);
+  const NewsletterSubscriptionDialog({super.key});
 
   @override
   ConsumerState<NewsletterSubscriptionDialog> createState() => _NewsletterSubscriptionDialogState();
@@ -113,7 +113,6 @@ class _NewsletterSubscriptionDialogState extends ConsumerState<NewsletterSubscri
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header
                     Row(
                       children: [
                         Container(
@@ -159,8 +158,6 @@ class _NewsletterSubscriptionDialogState extends ConsumerState<NewsletterSubscri
                     ),
                     
                     SizedBox(height: 24),
-                    
-                    // Description
                     Container(
                       padding: EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -222,8 +219,6 @@ class _NewsletterSubscriptionDialogState extends ConsumerState<NewsletterSubscri
                     ),
                     
                     SizedBox(height: 24),
-                    
-                    // Form Fields
                     Row(
                       children: [
                         Expanded(
@@ -284,8 +279,6 @@ class _NewsletterSubscriptionDialogState extends ConsumerState<NewsletterSubscri
                     ),
                     
                     SizedBox(height: 24),
-                    
-                    // Action Buttons
                     Row(
                       children: [
                         Expanded(
@@ -350,8 +343,6 @@ class _NewsletterSubscriptionDialogState extends ConsumerState<NewsletterSubscri
                     ),
                     
                     SizedBox(height: 16),
-                    
-                    // Privacy Notice
                     Text(
                       'We respect your privacy. You can unsubscribe at any time.',
                       style: GoogleFonts.poppins(
@@ -371,12 +362,8 @@ class _NewsletterSubscriptionDialogState extends ConsumerState<NewsletterSubscri
   }
 }
 
-// ====================
-// 5. UPDATED HERO SECTION WITH NEWSLETTER BUTTON
-// ====================
-
 Widget _buildHeroSection(BuildContext context) {
-  return Container(
+  return SizedBox(
     height: 700,
     width: MediaQuery.of(context).size.width,
     child: Stack(
@@ -455,7 +442,6 @@ Widget _buildHeroSection(BuildContext context) {
                         ),
                       ),
                     ),
-                    // Updated Newsletter Subscription Button
                     GestureDetector(
                       onTap: () {
                         showDialog(

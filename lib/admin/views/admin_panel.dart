@@ -35,12 +35,9 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
 
   Future<void> _checkAuthAndLoadEvents() async {
     setState(() => _isLoading = true);
-
-    // Check if user is authenticated
     _currentUser = _auth.currentUser;
 
     if (_currentUser == null) {
-      // Sign in anonymously or show login dialog
       await _signInUser();
     }
 
@@ -53,16 +50,10 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
 
   Future<void> _signInUser() async {
     try {
-      // For testing: sign in anonymously
       final userCredential = await _auth.signInAnonymously();
       _currentUser = userCredential.user;
 
-      // Alternatively, you can use email/password sign in:
-      // final userCredential = await _auth.signInWithEmailAndPassword(
-      //   email: 'admin@example.com',
-      //   password: 'your_password',
-      // );
-
+  
       debugPrint('Signed in user: ${_currentUser?.uid}');
     } catch (e) {
       debugPrint('Sign in error: $e');
@@ -132,14 +123,12 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       UploadTask uploadTask;
 
       if (kIsWeb && bytes != null) {
-        // For web, use putData with metadata
         final metadata = SettableMetadata(
           contentType: 'image/jpeg',
           customMetadata: {'uploadedBy': _currentUser!.uid},
         );
         uploadTask = ref.putData(bytes, metadata);
       } else if (!kIsWeb && filePath != null) {
-        // For mobile, use putFile
         final metadata = SettableMetadata(
           contentType: 'image/jpeg',
           customMetadata: {'uploadedBy': _currentUser!.uid},
@@ -148,11 +137,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       } else {
         throw Exception("Invalid image data provided");
       }
-
-      // Wait for upload to complete
       final snapshot = await uploadTask;
-
-      // Get download URL
       final downloadURL = await snapshot.ref.getDownloadURL();
       debugPrint('Image uploaded successfully: $downloadURL');
 
@@ -227,15 +212,13 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   controller: priceController,
   keyboardType: TextInputType.number,
   decoration: const InputDecoration(
-    labelText: "Price (CAD)",  // Updated from USD → CAD
+    labelText: "Price (CAD)",  
     border: OutlineInputBorder(),
   ),
 ),
 
 
                         const SizedBox(height: 15),
-
-                        // Image preview
                         if (imageBytes != null)
                           Container(
                             height: 120,
@@ -315,8 +298,6 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                           ),
 
                         const SizedBox(height: 10),
-
-                        // Image selection and upload buttons
                         Row(
                           children: [
                             Expanded(
@@ -432,7 +413,6 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                           isUploading
                               ? null
                               : () async {
-                                // Validation
                                 if (titleController.text.trim().isEmpty) {
                                   _showErrorSnackBar("Please enter a title");
                                   return;
@@ -534,7 +514,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                         const Icon(Icons.logout),
                         const SizedBox(width: 8),
                         Text(
-                          'Sign Out (${_currentUser?.uid?.substring(0, 8) ?? 'N/A'})',
+                          'Sign Out (${_currentUser?.uid.substring(0, 8) ?? 'N/A'})',
                         ),
                       ],
                     ),

@@ -4,7 +4,6 @@ import 'package:shetravels/admin/data/controller/event_controller.dart';
 import 'package:shetravels/admin/data/event_model.dart';
 import 'package:shetravels/common/data/provider/payment_provider.dart';
 
-/// Event details section
 Widget buildEventDetails(
   Event event, {
   required bool isMobile,
@@ -28,7 +27,6 @@ Widget buildEventDetails(
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Event Title
           Text(
             event.title,
             style: TextStyle(
@@ -40,8 +38,6 @@ Widget buildEventDetails(
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 8),
-
-          // Slots Availability
           Row(
             children: [
               Icon(
@@ -87,8 +83,6 @@ Widget buildEventDetails(
               ),
             ],
           ),
-
-          // Price Row (if you want to display price)
           if (event.price > 0) ...[
             const SizedBox(height: 6),
             Row(
@@ -110,8 +104,6 @@ Widget buildEventDetails(
               ],
             ),
           ],
-
-          // Description
           if (event.description.isNotEmpty) ...[
             const SizedBox(height: 10),
             Text(

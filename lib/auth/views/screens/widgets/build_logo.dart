@@ -10,7 +10,6 @@ Widget buildLogo(bool isMobile, Animation<double> scaleAnimation) {
       margin: EdgeInsets.only(bottom: isMobile ? 32 : 48),
       child: Column(
         children: [
-          // SVG Logo with fallback
           Container(
             width: isMobile ? 120 : 140,
             height: isMobile ? 120 : 140,
@@ -50,7 +49,6 @@ Widget buildLogo(bool isMobile, Animation<double> scaleAnimation) {
                     ),
                   );
                 } else {
-                  // Fallback icon if SVG fails to load
                   return Icon(
                     Icons.travel_explore_rounded,
                     size: isMobile ? 60 : 70,

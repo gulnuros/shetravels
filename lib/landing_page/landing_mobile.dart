@@ -24,6 +24,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
 class LandingPage extends StatefulHookConsumerWidget {
+  const LandingPage({super.key});
+
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _LandingPageState();
 }
@@ -34,21 +36,16 @@ class _LandingPageState extends ConsumerState<LandingPage> {
   @override
   void initState() {
     super.initState();
-    // Delay showing popup to allow widget tree to build completely
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
   }
 
   void _checkAndShowUpcomingEventsPopup() {
     if (!mounted || _hasShownPopup) return;
 
     final eventAsync = ref.read(upcomingEventsProvider);
-
-    // Listen to the provider state
     eventAsync.whenOrNull(
       data: (events) {
-        if (events != null && events.isNotEmpty && mounted && !_hasShownPopup) {
+        if (events.isNotEmpty && mounted && !_hasShownPopup) {
           _hasShownPopup = true;
           _showUpcomingEventsPopup(events.first);
         }
@@ -102,19 +99,12 @@ class _LandingPageState extends ConsumerState<LandingPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header with close button
                 _buildPopupHeader(),
                 const SizedBox(height: 16),
-
-                // Description
                 _buildPopupDescription(),
                 const SizedBox(height: 20),
-
-                // Event preview
                 _buildEventPreview(event),
                 const SizedBox(height: 24),
-
-                // Action buttons
                 _buildPopupActions(),
               ],
             ),
@@ -203,11 +193,8 @@ class _LandingPageState extends ConsumerState<LandingPage> {
       ),
       child: Row(
         children: [
-          // Event image
           _buildEventImage(event),
           const SizedBox(width: 16),
-
-          // Event details
           Expanded(child: _buildEventDetails(event)),
         ],
       ),
@@ -344,7 +331,6 @@ class _LandingPageState extends ConsumerState<LandingPage> {
   Widget _buildPopupActions() {
     return Row(
       children: [
-        // Dismiss button
         Expanded(
           child: OutlinedButton(
             style: OutlinedButton.styleFrom(
@@ -352,7 +338,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-               padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
             ),
             onPressed: () {
               if (mounted) {
@@ -369,8 +355,6 @@ class _LandingPageState extends ConsumerState<LandingPage> {
           ),
         ),
         const SizedBox(width: 12),
-
-        // View all button
         Expanded(
           flex: 2,
           child: ElevatedButton(
@@ -382,12 +366,11 @@ class _LandingPageState extends ConsumerState<LandingPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-               padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
             ),
             onPressed: () {
               if (mounted) {
                 Navigator.of(context).pop();
-              //  _navigateToEvents();
               }
             },
             child: Row(
@@ -412,13 +395,12 @@ class _LandingPageState extends ConsumerState<LandingPage> {
 
   void _navigateToEvents() {
     try {
-Navigator.of(context).pop();
-   
-  
+      Navigator.of(context).pop();
     } catch (e) {
-   Navigator.of(context).pop();
+      Navigator.of(context).pop();
     }
   }
+
   String? _getEventImageUrl(dynamic event) {
     if (event == null) return null;
     return event.imageUrl?.toString() ?? event.image?.toString();
@@ -474,25 +456,6 @@ Navigator.of(context).pop();
 
   @override
   Widget build(BuildContext context) {
-    // ref.listen<AsyncValue>(upcomingEventsProvider, (previous, next) {
-    //   if (!_hasShownPopup && mounted) {
-    //     next.whenOrNull(
-    //       data: (events) {
-    //         if (events != null && events.isNotEmpty) {
-    //           WidgetsBinding.instance.addPostFrameCallback((_) {
-    //             if (mounted && !_hasShownPopup) {
-    //               _hasShownPopup = true;
-    //               _showUpcomingEventsPopup(events.first);
-    //             }
-    //           });
-    //         }
-    //       },
-    //     );
-    //   }
-    // });
-
-
-
     const String assetName = 'assets/she_travel.svg';
     final Widget svg = SvgPicture.asset(
       assetName,
@@ -598,7 +561,6 @@ Navigator.of(context).pop();
                   ),
                 ),
 
-            
                 _keyedSection('getInTouch', buildTestimonialSection(context)),
 
                 SizedBox(height: 50),
@@ -611,10 +573,8 @@ Navigator.of(context).pop();
     );
   }
 
-  // If you want to show the upcoming events section, add this widget in your build method where appropriate, for example:
-
   Widget _buildSection({required String key, required Widget child}) {
-    return Container(
+    return SizedBox(
       key: _sectionKeys[key],
       width: double.infinity,
       child: child,
@@ -629,7 +589,7 @@ Navigator.of(context).pop();
   }
 
   Widget _buildHeroSection() {
-    return Container(
+    return SizedBox(
       height: 700,
       width: MediaQuery.of(context).size.width,
       child: Stack(
@@ -683,14 +643,14 @@ Navigator.of(context).pop();
                   ),
                   SizedBox(height: 24),
                   GestureDetector(
-                     onTap: () {
-                          print('This is the dialog');
-                          showDialog(
-                          context: context,
-                          builder: (context) => NewsletterSubscriptionDialog(),
-                          );
-                              print('This is the dialog2');
-                        },
+                    onTap: () {
+                      print('This is the dialog');
+                      showDialog(
+                        context: context,
+                        builder: (context) => NewsletterSubscriptionDialog(),
+                      );
+                      print('This is the dialog2');
+                    },
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 30,
@@ -823,8 +783,6 @@ Navigator.of(context).pop();
           ),
 
           SizedBox(height: 24),
-
-          // Description
           FadeInUp(
             duration: Duration(milliseconds: 800),
             child: Text(

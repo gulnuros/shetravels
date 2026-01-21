@@ -9,15 +9,12 @@ import 'package:shimmer/shimmer.dart';
 
 import 'testimonial/data/testimonial_repository.dart';
 
-import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:ui';
 
 class TripGalleryPage extends StatelessWidget {
   final PastTrip trip;
 
-  const TripGalleryPage({Key? key, required this.trip}) : super(key: key);
+  const TripGalleryPage({super.key, required this.trip});
 
   @override
   Widget build(BuildContext context) {
@@ -201,10 +198,7 @@ Widget buildUpcomingTourCard(BuildContext context, Event event) {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => Container(),
-                      //TourDetailPage(tour: tour),
-                    ),
+                    MaterialPageRoute(builder: (_) => Container()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -223,7 +217,7 @@ Widget buildUpcomingTourCard(BuildContext context, Event event) {
 class TourDetailPage extends StatelessWidget {
   final Event event;
 
-  const TourDetailPage({Key? key, required this.event}) : super(key: key);
+  const TourDetailPage({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
@@ -282,7 +276,6 @@ Widget buildUpcomingToursSection(BuildContext context, WidgetRef ref) {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Title with glassmorphism effect
         Container(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           decoration: BoxDecoration(
@@ -323,8 +316,6 @@ Widget buildUpcomingToursSection(BuildContext context, WidgetRef ref) {
           ),
         ),
         const SizedBox(height: 40),
-
-        // Tours list with proper state handling
         Consumer(
           builder: (context, ref, child) {
             final toursAsync = ref.watch(upcomingEventsProvider);
@@ -347,7 +338,6 @@ Widget buildUpcomingToursSection(BuildContext context, WidgetRef ref) {
   );
 }
 
-// Shimmer loading effect for tours
 Widget _buildToursShimmerLoading() {
   return SizedBox(
     height: 460,
@@ -374,7 +364,6 @@ Widget _buildToursShimmerLoading() {
                 ),
                 child: Column(
                   children: [
-                    // Image placeholder
                     Container(
                       height: 240,
                       decoration: BoxDecoration(
@@ -391,7 +380,6 @@ Widget _buildToursShimmerLoading() {
                         ),
                       ),
                     ),
-                    // Content placeholder
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(20),
@@ -448,7 +436,6 @@ Widget _buildToursShimmerLoading() {
   );
 }
 
-// Error state for tours
 Widget _buildToursErrorState(String error) {
   return Container(
     height: 300,
@@ -492,7 +479,6 @@ Widget _buildToursErrorState(String error) {
   );
 }
 
-// Empty state for tours
 Widget _buildToursEmptyState() {
   return Container(
     height: 300,
@@ -539,7 +525,6 @@ Widget _buildToursEmptyState() {
   );
 }
 
-// Tours list
 Widget _buildToursList(BuildContext context, List<dynamic> tours) {
   return SizedBox(
     height: 460,
@@ -604,15 +589,15 @@ Widget buildTestimonialCard(Testimonial t) {
     ),
   );
 }
+
 Widget buildTestimonialSection(BuildContext context) {
   final screenWidth = MediaQuery.of(context).size.width;
-  
-  // Card width adapts to screen size
-  double cardWidth = screenWidth * 0.8; // Increased for better mobile experience
+
+  double cardWidth = screenWidth * 0.8;
   if (screenWidth > 1200) {
-    cardWidth = 400; // fixed max width for desktop
+    cardWidth = 400;
   } else if (screenWidth > 800) {
-    cardWidth = 320; // medium size for tablets
+    cardWidth = 320;
   }
 
   return Column(
@@ -630,11 +615,10 @@ Widget buildTestimonialSection(BuildContext context) {
         ),
       ),
       SizedBox(
-        height: 280, // Increased height slightly
+        height: 280,
         child: StreamBuilder<List<Testimonial>>(
           stream: TestimonialRepository.getTestimonialsStream(),
           builder: (context, snapshot) {
-            // Debug information
             print('Connection State: ${snapshot.connectionState}');
             print('Has Data: ${snapshot.hasData}');
             print('Has Error: ${snapshot.hasError}');
@@ -644,28 +628,23 @@ Widget buildTestimonialSection(BuildContext context) {
             if (snapshot.hasError) {
               print('Error: ${snapshot.error}');
             }
-
-            // Handle error state
             if (snapshot.hasError) {
-              return _buildErrorWidget(context, cardWidth, snapshot.error.toString());
+              return _buildErrorWidget(
+                context,
+                cardWidth,
+                snapshot.error.toString(),
+              );
             }
-
-            // Key fix: Only show shimmer if we're waiting AND don't have data yet
-            // Firestore streams often stay in 'active' state, not 'done'
-            if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                !snapshot.hasData) {
               return _buildShimmerLoading(cardWidth);
             }
-
-            // Show empty state if no data
             if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              // If we're still connecting for the first time, show shimmer briefly
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return _buildShimmerLoading(cardWidth);
               }
               return _buildEmptyState(context, cardWidth);
             }
-
-            // Show actual data
             final testimonials = snapshot.data!;
             return _buildTestimonialsList(testimonials, cardWidth);
           },
@@ -675,7 +654,6 @@ Widget buildTestimonialSection(BuildContext context) {
   );
 }
 
-// Extracted shimmer loading widget
 Widget _buildShimmerLoading(double cardWidth) {
   return ListView.builder(
     scrollDirection: Axis.horizontal,
@@ -701,7 +679,6 @@ Widget _buildShimmerLoading(double cardWidth) {
   );
 }
 
-// Enhanced empty state
 Widget _buildEmptyState(BuildContext context, double cardWidth) {
   return Center(
     child: Container(
@@ -728,10 +705,7 @@ Widget _buildEmptyState(BuildContext context, double cardWidth) {
           const SizedBox(height: 8),
           Text(
             "Be the first to share your experience!",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade500,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
             textAlign: TextAlign.center,
           ),
         ],
@@ -740,7 +714,6 @@ Widget _buildEmptyState(BuildContext context, double cardWidth) {
   );
 }
 
-// Enhanced error state
 Widget _buildErrorWidget(BuildContext context, double cardWidth, String error) {
   return Center(
     child: Container(
@@ -755,11 +728,7 @@ Widget _buildErrorWidget(BuildContext context, double cardWidth, String error) {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            color: Colors.red.shade600,
-            size: 48,
-          ),
+          Icon(Icons.error_outline, color: Colors.red.shade600, size: 48),
           const SizedBox(height: 16),
           Text(
             "Failed to load testimonials",
@@ -773,16 +742,12 @@ Widget _buildErrorWidget(BuildContext context, double cardWidth, String error) {
           const SizedBox(height: 8),
           Text(
             "Please check your connection",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.red.shade600,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.red.shade600),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: () {
-              // Force rebuild to retry
               if (context.mounted) {
                 (context as Element).markNeedsBuild();
               }
@@ -800,13 +765,15 @@ Widget _buildErrorWidget(BuildContext context, double cardWidth, String error) {
   );
 }
 
-// Extracted testimonials list
-Widget _buildTestimonialsList(List<Testimonial> testimonials, double cardWidth) {
+Widget _buildTestimonialsList(
+  List<Testimonial> testimonials,
+  double cardWidth,
+) {
   return ListView.builder(
     scrollDirection: Axis.horizontal,
     itemCount: testimonials.length,
     padding: const EdgeInsets.symmetric(horizontal: 16),
-    physics: const BouncingScrollPhysics(), // Better scrolling on mobile
+    physics: const BouncingScrollPhysics(),
     itemBuilder: (context, index) {
       return Padding(
         padding: EdgeInsets.only(

@@ -20,7 +20,6 @@ class FounderService {
 
   static const String collectionName = 'founderMessages';
 
-  /// Get all founder messages (latest first)
   Future<List<FounderMessage>> getAllFounderMessages() async {
     final snapshot =
         await firestore
@@ -33,9 +32,7 @@ class FounderService {
         .toList();
   }
 
-  /// Get all founder messages for admin
   Future<List<FounderMessage>> getAllFounderMessagesAdmin() async {
-    // Currently same as above, but can add admin-specific filtering if needed
     return getAllFounderMessages();
   }
 
@@ -48,16 +45,13 @@ class FounderService {
     try {
       String? imageUrl;
 
-      // Upload image depending on platform
       if (imageFile != null) {
-        // Mobile/Desktop
         final ref = storage.ref().child(
           'founder_images/${DateTime.now().millisecondsSinceEpoch}_${imageFile.path.split('/').last}',
         );
         await ref.putFile(imageFile);
         imageUrl = await ref.getDownloadURL();
       } else if (imageBytes != null && fileName != null) {
-        // Web
         final ref = storage.ref().child(
           'founder_images/${DateTime.now().millisecondsSinceEpoch}_$fileName',
         );
@@ -65,7 +59,6 @@ class FounderService {
         imageUrl = await ref.getDownloadURL();
       }
 
-      // Prepare Firestore data
       final data = founderMessage.toJson()..remove('id');
       data['createdAt'] = DateTime.now().toIso8601String();
       if (imageUrl != null) {
@@ -86,16 +79,13 @@ class FounderService {
         .update(data);
   }
 
-  /// Delete a founder message
   Future<void> deleteFounderMessage(String id) async {
     await firestore.collection(collectionName).doc(id).delete();
   }
 
-  /// Toggle active status of a founder message
   Future<void> toggleFounderMessageStatus(String id) async {
     final batch = firestore.batch();
 
-    // Deactivate all
     final allDocs = await firestore.collection(collectionName).get();
     for (var doc in allDocs.docs) {
       batch.update(doc.reference, {
@@ -104,7 +94,6 @@ class FounderService {
       });
     }
 
-    // Activate selected one
     batch.update(firestore.collection(collectionName).doc(id), {
       'isActive': true,
       'updatedAt': DateTime.now().toIso8601String(),
@@ -112,8 +101,6 @@ class FounderService {
 
     await batch.commit();
   }
-
-  /// Upload image to Firebase Storage
   Future<String> uploadImage(File imageFile, String fileName) async {
     final ref = storage.ref().child('founder_images/$fileName');
     final uploadTask = await ref.putFile(imageFile);

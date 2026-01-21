@@ -17,7 +17,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 
 class AdminFounderPage extends ConsumerStatefulWidget {
-  const AdminFounderPage({Key? key}) : super(key: key);
+  const AdminFounderPage({super.key});
 
   @override
   ConsumerState<AdminFounderPage> createState() => _AdminFounderPageState();
@@ -53,7 +53,6 @@ class _AdminFounderPageState extends ConsumerState<AdminFounderPage>
     super.dispose();
   }
 
-  // Responsive breakpoints
   bool get _isMobile => MediaQuery.of(context).size.width < 600;
   bool get _isTablet => MediaQuery.of(context).size.width >= 600 && 
                        MediaQuery.of(context).size.width < 1200;
@@ -353,16 +352,13 @@ return Hero(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header - Fixed height
           _buildCardHeader(message, colorScheme),
           
-          // Content - Flexible
           Flexible(
             flex: 2,
             child: _buildCardContent(message, colorScheme),
           ),
           
-          // Actions - Fixed height
           _buildCardActions(message, colorScheme),
         ],
       ),
@@ -383,7 +379,7 @@ Widget _buildCardActions(FounderMessage message, ColorScheme colorScheme) {
   return Container(
     padding: EdgeInsets.all(isMobile ? 12 : 16),
     decoration: BoxDecoration(
-      color: colorScheme.surfaceVariant.withOpacity(0.1),
+      color: colorScheme.surfaceContainerHighest.withOpacity(0.1),
       borderRadius: const BorderRadius.only(
         bottomLeft: Radius.circular(24),
         bottomRight: Radius.circular(24),
@@ -454,7 +450,6 @@ Widget _buildCardHeader(FounderMessage message, ColorScheme colorScheme) {
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Avatar with status indicator
         Stack(
           children: [
             Container(
@@ -505,7 +500,6 @@ Widget _buildCardHeader(FounderMessage message, ColorScheme colorScheme) {
         
         SizedBox(height: isMobile ? 12 : 16),
         
-        // Name
         Text(
           message.name,
           style: TextStyle(
@@ -521,7 +515,6 @@ Widget _buildCardHeader(FounderMessage message, ColorScheme colorScheme) {
         
         SizedBox(height: isMobile ? 4 : 6),
         
-        // Title
         Text(
           message.title,
           style: TextStyle(
@@ -722,13 +715,12 @@ Widget _buildActionButton({
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Message content - takes available space
         Flexible(
           child: Container(
             width: double.infinity,
             padding: EdgeInsets.all(isMobile ? 12 : 16),
             decoration: BoxDecoration(
-              color: colorScheme.surfaceVariant.withOpacity(0.3),
+              color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: colorScheme.outline.withOpacity(0.06),
@@ -751,7 +743,6 @@ Widget _buildActionButton({
         
         SizedBox(height: isMobile ? 8 : 12),
         
-        // Date container - fixed height
         Container(
           padding: EdgeInsets.symmetric(
             horizontal: isMobile ? 8 : 10,
@@ -1143,7 +1134,7 @@ class _LoadingWidget extends StatelessWidget {
 class AddEditFounderDialog extends ConsumerStatefulWidget {
   final FounderMessage? message;
 
-  const AddEditFounderDialog({Key? key, this.message}) : super(key: key);
+  const AddEditFounderDialog({super.key, this.message});
 
   @override
   ConsumerState<AddEditFounderDialog> createState() => _AddEditFounderDialogState();
@@ -1161,16 +1152,15 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
   bool _isLoading = false;
   bool _isUploadingImage = false;
   
-  // For different platforms
-  File? _selectedImageFile; // Mobile
-  Uint8List? _selectedImageBytes; // Web
+
+  File? _selectedImageFile; 
+  Uint8List? _selectedImageBytes; 
   String? _selectedImageName;
 
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
 
-  // Responsive breakpoints
   static const double mobileBreakpoint = 768;
   static const double tabletBreakpoint = 1024;
 
@@ -1182,7 +1172,6 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
   void initState() {
     super.initState();
     
-    // Initialize animation controller
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -1196,7 +1185,6 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
 
-    // Pre-populate form if editing
     if (widget.message != null) {
       _nameController.text = widget.message!.name;
       _titleController.text = widget.message!.title;
@@ -1205,7 +1193,6 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
       _isActive = widget.message!.isActive;
     }
 
-    // Start animation
     _animationController.forward();
   }
 
@@ -1219,20 +1206,17 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
     super.dispose();
   }
 
-  // Get responsive dialog width
   double _getDialogWidth(double screenWidth) {
     if (_isMobile) return screenWidth * 0.95;
     if (_isTablet) return screenWidth * 0.8;
     return screenWidth * 0.6;
   }
 
-  // Get responsive padding
   EdgeInsets _getResponsivePadding() {
     if (_isMobile) return const EdgeInsets.all(16);
     return const EdgeInsets.all(24);
   }
 
-  // Get responsive spacing
   double get _spacing => _isMobile ? 16.0 : 20.0;
 
   @override
@@ -1377,7 +1361,7 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: colorScheme.outline.withOpacity(0.2),
@@ -1385,7 +1369,6 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
       ),
       child: Column(
         children: [
-          // Image preview
           Container(
             height: _isMobile ? 140 : 180,
             width: _isMobile ? 140 : 180,
@@ -1410,7 +1393,6 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
           ),
           SizedBox(height: _spacing),
           
-          // Image controls
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -1622,7 +1604,7 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: colorScheme.outline.withOpacity(0.2),
@@ -1665,7 +1647,7 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
               });
               HapticFeedback.selectionClick();
             },
-            activeColor: colorScheme.primary,
+            activeThumbColor: colorScheme.primary,
           ),
         ],
       ),
@@ -1676,7 +1658,7 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
     return Container(
       padding: _getResponsivePadding(),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(_isMobile ? 16 : 24),
           bottomRight: Radius.circular(_isMobile ? 16 : 24),
@@ -1737,21 +1719,18 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
 
   Widget _buildImagePreview(ColorScheme colorScheme) {
     if (_selectedImageBytes != null) {
-      // Web
       return Image.memory(
         _selectedImageBytes!,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(colorScheme),
       );
     } else if (_selectedImageFile != null) {
-      // Mobile
       return Image.file(
         _selectedImageFile!,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(colorScheme),
       );
     } else if (_imageUrlController.text.isNotEmpty) {
-      // Network image
       return Image.network(
         _imageUrlController.text,
         fit: BoxFit.cover,
@@ -1776,7 +1755,7 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: colorScheme.surfaceVariant.withOpacity(0.5),
+      color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -1818,7 +1797,6 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
       
       if (image != null) {
         if (kIsWeb) {
-          // Web platform
           final bytes = await image.readAsBytes();
           setState(() {
             _selectedImageBytes = bytes;
@@ -1827,7 +1805,6 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
             _imageUrlController.clear();
           });
         } else {
-          // Mobile platform
           setState(() {
             _selectedImageFile = File(image.path);
             _selectedImageName = image.name;
@@ -1868,13 +1845,13 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
       UploadTask uploadTask;
       
       if (kIsWeb && _selectedImageBytes != null) {
-        // Web upload
+
         uploadTask = storageRef.putData(
           _selectedImageBytes!,
           SettableMetadata(contentType: 'image/jpeg'),
         );
       } else if (!kIsWeb && _selectedImageFile != null) {
-        // Mobile upload
+  
         uploadTask = storageRef.putFile(
           _selectedImageFile!,
           SettableMetadata(contentType: 'image/jpeg'),
@@ -1912,13 +1889,11 @@ class _AddEditFounderDialogState extends ConsumerState<AddEditFounderDialog>
     try {
       String imageUrl = _imageUrlController.text.trim();
       
-      // Upload image if one was selected
       if (_hasSelectedImage) {
         final uploadedImageUrl = await _uploadImageToFirebase();
         if (uploadedImageUrl != null) {
           imageUrl = uploadedImageUrl;
         } else {
-          // If upload failed, keep existing image URL or empty
           imageUrl = widget.message?.imageUrl ?? '';
         }
       }

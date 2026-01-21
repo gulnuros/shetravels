@@ -4,7 +4,7 @@ import 'package:shetravels/she_travel_web.dart';
 class TripGalleryPage extends StatelessWidget {
   final PastTrip trip;
 
-  const TripGalleryPage({Key? key, required this.trip}) : super(key: key);
+  const TripGalleryPage({super.key, required this.trip});
 
   @override
   Widget build(BuildContext context) {

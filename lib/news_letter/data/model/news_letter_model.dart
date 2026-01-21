@@ -1,6 +1,3 @@
-// ====================
-// 1. NEWSLETTER MODEL
-// ====================
 
 class NewsletterSubscriber {
   final String id;
@@ -9,7 +6,7 @@ class NewsletterSubscriber {
   final String? lastName;
   final DateTime subscribedAt;
   final bool isActive;
-  final Map<String, String>? preferences; // e.g., {"frequency": "weekly", "topics": "travel,community"}
+  final Map<String, String>? preferences;
 
   NewsletterSubscriber({
     required this.id,

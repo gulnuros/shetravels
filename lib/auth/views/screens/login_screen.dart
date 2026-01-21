@@ -5,9 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:shetravels/auth/data/controller/auth_controller.dart';
 import 'package:shetravels/utils/helpers.dart';
 import 'package:shetravels/utils/route.gr.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @RoutePage()
 class LoginScreen extends ConsumerStatefulWidget {
@@ -215,7 +213,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       ),
                     );
                   } else {
-                    // Fallback icon if SVG fails to load
                     return Icon(
                       Icons.travel_explore_rounded,
                       size: isMobile ? 60 : 70,
@@ -362,7 +359,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
           ],
         ),
-     
       ],
     );
   }
@@ -405,10 +401,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // Logo and Brand Section
                             _buildLogo(isMobile),
-
-                            // Login Form Card
                             Container(
                               padding: EdgeInsets.all(isMobile ? 24 : 32),
                               decoration: BoxDecoration(
@@ -433,7 +426,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
                                   children: [
-                                    // Header Section
                                     Column(
                                       children: [
                                         Text(
@@ -458,11 +450,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       ],
                                     ),
                                     SizedBox(height: isMobile ? 24 : 32),
-
-                                    // Error Message
                                     _buildErrorMessage(),
-
-                                    // Email Field
                                     _buildTextField(
                                       label: "Email Address",
                                       controller: emailController,
@@ -481,8 +469,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         return null;
                                       },
                                     ),
-
-                                    // Password Field
                                     _buildTextField(
                                       label: "Password",
                                       controller: passwordController,
@@ -515,13 +501,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     ),
 
                                     const SizedBox(height: 8),
-
-                                    // Action Buttons (Remember Me & Forgot Password)
                                     _buildActionButtons(isMobile),
 
                                     const SizedBox(height: 24),
-
-                                    // Login Button
                                     Container(
                                       height: 56,
                                       decoration: BoxDecoration(
@@ -591,7 +573,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       ),
                                     ),
 
-                                    // Auth State Error Display
                                     if (authState.error != null) ...[
                                       const SizedBox(height: 16),
                                       Container(

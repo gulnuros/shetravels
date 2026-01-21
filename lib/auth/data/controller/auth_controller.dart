@@ -7,222 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shetravels/auth/data/repository/auth_repository.dart';
 import 'package:shetravels/auth/views/screens/widgets/error_message_widget.dart';
 import 'package:shetravels/utils/route.gr.dart';
-import 'package:shetravels/utils/string.dart';
 
-// final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
-//   return FirebaseAuth.instance;
-// });
-
-// final authRepositoryProvider = Provider<AuthRepository>((ref) {
-//   return AuthRepository(ref.watch(firebaseAuthProvider));
-// });
-
-// final authControllerProvider =
-//     StateNotifierProvider<AuthController, AsyncValue<User?>>((ref) {
-//       return AuthController(ref.watch(authRepositoryProvider));
-//     });
-
-// class AuthController extends StateNotifier<AsyncValue<User?>> {
-//   final AuthRepository _repository;
-
-//   AuthController(this._repository) : super(const AsyncLoading()) {
-//     _init();
-//   }
-
-//   void _init() {
-//     _repository.authStateChanges.listen((user) {
-//       state = AsyncData(user);
-//     });
-//   }
-
-//       String? error;
-//       bool? acceptTerms;
-
-//         final emailController = TextEditingController();
-//   final passwordController = TextEditingController();
-//   final confirmPasswordController = TextEditingController();
-//   final fullNameController = TextEditingController();
-
-//   bool obscurePassword = true;
-//   bool obscureConfirmPassword = true;
-
-//   Future<void> signUp(
-//     String email,
-//     String password, {
-//     required BuildContext context,
-//   }) async {
-//     state = const AsyncLoading();
-//     try {
-//       final user = await _repository.signUp(email, password);
-//       state = AsyncData(user);
-
-//       // Show success alert
-//       if (context.mounted) {
-//         await showDialog(
-//           context: context,
-//           barrierDismissible: false,
-//           builder: (BuildContext dialogContext) {
-//             return signupSuccess(dialogContext);
-//           },
-//         );
-
-//         context.router.push(const LoginRoute());
-
-//         // Small delay to let user see the success message
-//         await Future.delayed(const Duration(milliseconds: 1500));
-
-//         // Optionally, navigate to a welcome screen or home page
-//         // context.router.push(HomeRoute());
-//       }
-//     } catch (e, st) {
-//       state = AsyncError(e, st);
-
-//       // Show error alert
-//       if (context.mounted) {
-//         await showDialog(
-//           context: context,
-//           builder: (BuildContext dialogContext) {
-//             return AlertDialog(
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(16),
-//               ),
-//               title: Row(
-//                 children: [
-//                   Icon(Icons.error, color: Colors.red, size: 28),
-//                   const SizedBox(width: 12),
-//                   Text(
-//                     'Sign Up Failed',
-//                     style: GoogleFonts.poppins(
-//                       fontWeight: FontWeight.bold,
-//                       color: Colors.red,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               content: Text(
-//                 getErrorMessage(e),
-//                 style: GoogleFonts.poppins(fontSize: 16),
-//               ),
-//               actions: [
-//                 TextButton(
-//                   onPressed: () {
-//                     Navigator.of(dialogContext).pop();
-//                   },
-//                   child: Text(
-//                     'Try Again',
-//                     style: GoogleFonts.poppins(
-//                       fontWeight: FontWeight.w600,
-//                       color: Colors.red,
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             );
-//           },
-//         );
-//       }
-//     }
-//   }
-
-//   void signUpMethod(BuildContext context) async {
-
-//     if (_formKey.currentState?.validate() ?? false) {
-//       if (!acceptTerms) {
-//         setState(() => error = pleaseAcceptTermsAndCondition);
-//         HapticFeedback.mediumImpact();
-//         return;
-//       }
-
-//       setState(() => error = null);
-//       HapticFeedback.lightImpact();
-
-//       try {
-//         await signUp(
-//               context: context,
-//               emailController.text.trim(),
-//               passwordController.text.trim(),
-//             );
-//       } catch (e) {
-//         if (mounted) {
-//           setState(() => authCont.error = e.toString());
-//           HapticFeedback.mediumImpact();
-//         }
-//       }
-//     } else {
-//       HapticFeedback.mediumImpact();
-//     }
-//   }
-
-// Future<void> signIn(
-//     String email,
-//     String password,
-//     BuildContext context,
-//   ) async {
-//     state = const AsyncLoading();
-//     try {
-//       final user = await _repository.signIn(email, password);
-//       state = AsyncData(user);
-//       context.router.push(HomeRoute());
-//     } catch (e, st) {
-//       state = AsyncError(e, st);
-//     }
-//   }
-
-//   Future<void> signOut() async {
-//     await _repository.signOut();
-//     state = const AsyncData(null);
-//   }
-
-//   Future<void> resetPassword(
-//     String email, {
-//     required BuildContext context,
-//   }) async {
-//     try {
-//       await _repository.resetPassword(email);
-
-//       // Show success alert
-//       if (context.mounted) {
-//         await successAlert(context, email);
-//       }
-//     } catch (e) {
-//       // Show error alert
-//       if (context.mounted) {
-//         await errorAlert(context, e);
-//       }
-//     }
-//   }
-
-//   // Helper widget to build step items
-
-//   // Helper method to get user-friendly reset password error messages
-
-//   // Alternative SnackBar version (simpler approach)
-//   Future<void> resetPasswordWithSnackBar(
-//     String email, {
-//     required BuildContext context,
-//   }) async {
-//     try {
-//       await _repository.resetPassword(email);
-
-//       // Show success snackbar
-//       if (context.mounted) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           resetPasswordSuccess(context),
-//         );
-//       }
-//     } catch (e) {
-//       // Show error snackbar
-//       if (context.mounted) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           resetPasswordError(e, context),
-//         );
-//       }
-//     }
-//   }
-
-// }
-
-// Providers
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
   return FirebaseAuth.instance;
 });
@@ -236,11 +21,9 @@ final authControllerProvider =
       return AuthController(ref.watch(authRepositoryProvider));
     });
 
-// Controller
 class AuthController extends StateNotifier<AsyncValue<User?>> {
   final AuthRepository _repository;
 
-  // Controllers (dispose in dispose())
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -274,11 +57,8 @@ class AuthController extends StateNotifier<AsyncValue<User?>> {
     acceptTerms = value;
   }
 
-  // ----------------- AUTH METHODS -----------------
-
   void togglePasswordVisibility() {
     obscurePassword = !obscurePassword;
-    // Trigger a rebuild by setting state to current value
     state = AsyncData(state.value);
   }
 
@@ -303,8 +83,6 @@ class AuthController extends StateNotifier<AsyncValue<User?>> {
           barrierDismissible: false,
           builder: (dialogContext) => signupSuccess(dialogContext),
         );
-
-        // Delay so user can see success dialog
         await Future.delayed(const Duration(milliseconds: 1500));
 
         context.router.replace(const LoginRoute());
@@ -379,7 +157,6 @@ class AuthController extends StateNotifier<AsyncValue<User?>> {
     }
   }
 
-  // ----------------- VALIDATION HELPERS -----------------
 
   Future<void> signUpWithValidation(BuildContext context) async {
     final email = emailController.text.trim();

@@ -8,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class AdminManageTestimonialsPage extends StatefulWidget {
+  const AdminManageTestimonialsPage({super.key});
+
   @override
   State<AdminManageTestimonialsPage> createState() =>
       _AdminManageTestimonialsPageState();
@@ -23,10 +25,8 @@ class _AdminManageTestimonialsPageState
 
   String _searchQuery = '';
   bool _isGridView = true;
-  Set<String> _selectedItems = {};
+  final Set<String> _selectedItems = {};
   bool _isSelectionMode = false;
-
-  // Responsive breakpoints
   static const double mobileBreakpoint = 768;
   static const double tabletBreakpoint = 1024;
   static const double desktopBreakpoint = 1440;
@@ -56,7 +56,6 @@ class _AdminManageTestimonialsPageState
       CurvedAnimation(parent: _slideController, curve: Curves.elasticOut),
     );
 
-    // Start animations
     _fadeController.forward();
     _slideController.forward();
   }
@@ -224,10 +223,9 @@ class _AdminManageTestimonialsPageState
         padding: _contentPadding,
         child: Column(
           children: [
-            // Search Bar
             Container(
               decoration: BoxDecoration(
-                color: colorScheme.surfaceVariant.withOpacity(0.3),
+                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
               ),
@@ -447,7 +445,6 @@ class _AdminManageTestimonialsPageState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header with rating and selection indicator
                   Row(
                     children: [
                       Container(
@@ -490,8 +487,6 @@ class _AdminManageTestimonialsPageState
                   ),
 
                   const SizedBox(height: 12),
-
-                  // Comment
                   Text(
                     testimonial.comment,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -503,8 +498,6 @@ class _AdminManageTestimonialsPageState
                   ),
 
                   const SizedBox(height: 16),
-
-                  // Author info
                   Row(
                     children: [
                       CircleAvatar(
@@ -637,7 +630,6 @@ class _AdminManageTestimonialsPageState
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Selection indicator or avatar
               if (_isSelectionMode)
                 AnimatedScale(
                   duration: const Duration(milliseconds: 200),
@@ -678,7 +670,6 @@ class _AdminManageTestimonialsPageState
 
               const SizedBox(width: 16),
 
-              // Content
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -702,7 +693,6 @@ class _AdminManageTestimonialsPageState
                 ),
               ),
 
-              // Actions
               if (!_isSelectionMode)
                 PopupMenuButton<String>(
                   icon: Icon(
@@ -924,12 +914,11 @@ class _AdminManageTestimonialsPageState
     );
   }
 
-  // Event handlers
   void _handleItemTap(String id) {
     if (_isSelectionMode) {
       _toggleItemSelection(id);
     } else {
-      // Handle item tap (e.g., view details)
+  
     }
   }
 
@@ -959,8 +948,6 @@ class _AdminManageTestimonialsPageState
   }
 
   void _selectAll() {
-    // This would need access to the current testimonials list
-    // Implementation depends on your data structure
   }
 
   void _exitSelectionMode() {
@@ -1011,8 +998,6 @@ class _AdminManageTestimonialsPageState
   }
 
   void _navigateToEditTestimonial(Testimonial testimonial) {
-    // Navigate to edit page with testimonial data
-    // context.router.push(EditTestimonialRoute(testimonial: testimonial));
   }
 
   void _deleteTestimonial(Testimonial testimonial) async {
@@ -1097,7 +1082,6 @@ class _AdminManageTestimonialsPageState
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Handle bar
                   Container(
                     width: 40,
                     height: 4,
@@ -1108,7 +1092,6 @@ class _AdminManageTestimonialsPageState
                     ),
                   ),
 
-                  // Options
                   ListTile(
                     leading: Icon(Icons.select_all, color: colorScheme.primary),
                     title: const Text('Select Multiple'),
@@ -1156,7 +1139,6 @@ class _AdminManageTestimonialsPageState
   }
 
   void _showSortOptions() {
-    // Implementation for sort options
     final colorScheme = Theme.of(context).colorScheme;
 
     showDialog(
@@ -1179,7 +1161,6 @@ class _AdminManageTestimonialsPageState
                   title: const Text('Most Recent'),
                   onTap: () {
                     Navigator.pop(context);
-                    // Implement sort by date
                   },
                 ),
                 ListTile(
@@ -1187,7 +1168,6 @@ class _AdminManageTestimonialsPageState
                   title: const Text('By Name'),
                   onTap: () {
                     Navigator.pop(context);
-                    // Implement sort by name
                   },
                 ),
                 ListTile(
@@ -1195,7 +1175,6 @@ class _AdminManageTestimonialsPageState
                   title: const Text('By Region'),
                   onTap: () {
                     Navigator.pop(context);
-                    // Implement sort by region
                   },
                 ),
               ],
@@ -1205,7 +1184,6 @@ class _AdminManageTestimonialsPageState
   }
 
   void _showFilterOptions() {
-    // Implementation for filter options
     final colorScheme = Theme.of(context).colorScheme;
 
     showDialog(
@@ -1228,7 +1206,6 @@ class _AdminManageTestimonialsPageState
                   title: const Text('This Week'),
                   onTap: () {
                     Navigator.pop(context);
-                    // Implement filter by this week
                   },
                 ),
                 ListTile(
@@ -1236,7 +1213,6 @@ class _AdminManageTestimonialsPageState
                   title: const Text('This Month'),
                   onTap: () {
                     Navigator.pop(context);
-                    // Implement filter by this month
                   },
                 ),
                 ListTile(
@@ -1247,7 +1223,6 @@ class _AdminManageTestimonialsPageState
                   title: const Text('By Region'),
                   onTap: () {
                     Navigator.pop(context);
-                    // Implement filter by region
                   },
                 ),
               ],

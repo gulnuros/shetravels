@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Event {
   final String? id;
@@ -9,11 +8,11 @@ class Event {
   final String description;
   final String imageUrl;
   final String location;
-  final int price; // 💰 price in cents
-  final int availableSlots; // 🎫 number of available slots
-  final List<String>? subscribedUsers; // 🆕 List of user IDs who subscribed
-  final DateTime? createdAt; // 🆕 When the event was created
-  final String? createdBy; // 🆕 Who created the event
+  final int price; 
+  final int availableSlots; 
+  final List<String>? subscribedUsers; 
+  final DateTime? createdAt; 
+  final String? createdBy; 
 
   Event({
     this.id,
@@ -63,7 +62,7 @@ class Event {
         'createdBy': createdBy,
       };
 
-  // 🆕 Helper methods
+
   int get remainingSlots => availableSlots - (subscribedUsers?.length ?? 0);
   bool get isSoldOut => remainingSlots <= 0;
   bool get isLowStock => remainingSlots <= 5 && remainingSlots > 0;

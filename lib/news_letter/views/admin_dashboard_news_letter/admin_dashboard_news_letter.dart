@@ -1,6 +1,4 @@
-// ====================
-// ADMIN NEWSLETTER DASHBOARD
-// ====================
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +8,7 @@ import 'package:shetravels/news_letter/data/controller/news_letter_controller.da
 import 'package:shetravels/news_letter/data/model/news_letter_model.dart';
 
 class AdminNewsletterDashboard extends ConsumerStatefulWidget {
-  const AdminNewsletterDashboard({Key? key}) : super(key: key);
+  const AdminNewsletterDashboard({super.key});
 
   @override
   ConsumerState<AdminNewsletterDashboard> createState() => _AdminNewsletterDashboardState();
@@ -64,11 +62,8 @@ class _AdminNewsletterDashboardState extends ConsumerState<AdminNewsletterDashbo
       body: TabBarView(
         controller: _tabController,
         children: [
-          // Overview Tab
           _buildOverviewTab(subscribersCountAsync, subscribersAsync, newslettersAsync),
-          // Subscribers Tab
           _buildSubscribersTab(subscribersAsync),
-          // Newsletters Tab
           _buildNewslettersTab(newslettersAsync),
         ],
       ),
@@ -109,7 +104,6 @@ class _AdminNewsletterDashboardState extends ConsumerState<AdminNewsletterDashbo
           ),
           const SizedBox(height: 24),
           
-          // Stats Cards
           Row(
             children: [
               Expanded(
@@ -154,8 +148,6 @@ class _AdminNewsletterDashboardState extends ConsumerState<AdminNewsletterDashbo
           ),
           
           const SizedBox(height: 32),
-          
-          // Recent Activity
           Text(
             'Recent Activity',
             style: GoogleFonts.poppins(
@@ -314,7 +306,6 @@ class _AdminNewsletterDashboardState extends ConsumerState<AdminNewsletterDashbo
                   const Spacer(),
                   ElevatedButton.icon(
                     onPressed: () {
-                      // Export subscribers functionality
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Export functionality coming soon!'),
@@ -465,7 +456,6 @@ class _AdminNewsletterDashboardState extends ConsumerState<AdminNewsletterDashbo
                                       ),
                                     ],
                                     onSelected: (value) {
-                                      // Handle subscriber actions
                                       if (value == 'deactivate') {
                                         ref.read(newsletterControllerProvider.notifier)
                                             .unsubscribeEmail(subscriber.email);
@@ -593,7 +583,6 @@ class _AdminNewsletterDashboardState extends ConsumerState<AdminNewsletterDashbo
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Status Badge
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -611,8 +600,6 @@ class _AdminNewsletterDashboardState extends ConsumerState<AdminNewsletterDashbo
             ),
             
             const SizedBox(height: 12),
-            
-            // Title
             Text(
               newsletter.title,
               style: GoogleFonts.poppins(
@@ -625,8 +612,6 @@ class _AdminNewsletterDashboardState extends ConsumerState<AdminNewsletterDashbo
             ),
             
             const SizedBox(height: 8),
-            
-            // Content Preview
             Text(
               newsletter.content,
               style: GoogleFonts.poppins(
@@ -638,8 +623,6 @@ class _AdminNewsletterDashboardState extends ConsumerState<AdminNewsletterDashbo
             ),
             
             const Spacer(),
-            
-            // Date and Actions
             Row(
               children: [
                 Expanded(
@@ -785,7 +768,6 @@ class _AdminNewsletterDashboardState extends ConsumerState<AdminNewsletterDashbo
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // Implement delete subscriber functionality
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: Text('Delete'),
@@ -796,14 +778,11 @@ class _AdminNewsletterDashboardState extends ConsumerState<AdminNewsletterDashbo
   }
 }
 
-// ====================
-// CREATE NEWSLETTER DIALOG
-// ====================
 
 class CreateNewsletterDialog extends ConsumerStatefulWidget {
-  final Newsletter? newsletter; // For editing existing newsletter
+  final Newsletter? newsletter; 
 
-  const CreateNewsletterDialog({Key? key, this.newsletter}) : super(key: key);
+  const CreateNewsletterDialog({super.key, this.newsletter});
 
   @override
   ConsumerState<CreateNewsletterDialog> createState() => _CreateNewsletterDialogState();
@@ -848,7 +827,7 @@ class _CreateNewsletterDialogState extends ConsumerState<CreateNewsletterDialog>
         title: _titleController.text.trim(),
         content: _contentController.text.trim(),
         createdAt: widget.newsletter?.createdAt ?? DateTime.now(),
-        createdBy: 'admin', // Replace with actual admin user
+        createdBy: 'admin',
         isDraft: isDraft,
         tags: _tagsController.text
             .split(',')
@@ -858,13 +837,11 @@ class _CreateNewsletterDialogState extends ConsumerState<CreateNewsletterDialog>
       );
 
       if (widget.newsletter != null) {
-        // Update existing
         await ref.read(newsletterControllerProvider.notifier).updateNewsletter(
           widget.newsletter!.id,
           newsletter.toJson(),
         );
       } else {
-        // Create new
         await ref.read(newsletterControllerProvider.notifier).createNewsletter(newsletter);
       }
 

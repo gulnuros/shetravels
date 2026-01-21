@@ -43,7 +43,7 @@ class BookingHistoryScreen extends StatelessWidget {
 
               return ListTile(
                 title: Text(eventName),
-                subtitle: Text("Paid: \$${amount}"),
+                subtitle: Text("Paid: \$$amount"),
                 trailing:
                     timestamp != null
                         ? Text("${timestamp.toLocal()}".split(' ')[0])

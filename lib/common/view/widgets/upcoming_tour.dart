@@ -24,7 +24,6 @@ Widget buildUpcomingToursSection(BuildContext context, WidgetRef ref) {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Title with glassmorphism effect
         Container(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           decoration: BoxDecoration(
@@ -65,8 +64,6 @@ Widget buildUpcomingToursSection(BuildContext context, WidgetRef ref) {
           ),
         ),
         const SizedBox(height: 40),
-
-        // Tours content with proper state handling
         Consumer(
           builder: (context, ref, child) {
             final eventsAsync = ref.watch(upcomingEventsProvider);
@@ -89,7 +86,6 @@ Widget buildUpcomingToursSection(BuildContext context, WidgetRef ref) {
   );
 }
 
-// Loading state with shimmer effect
 Widget _buildToursLoadingState() {
   return SizedBox(
     height: 460,
@@ -116,7 +112,6 @@ Widget _buildToursLoadingState() {
                 ),
                 child: Column(
                   children: [
-                    // Image placeholder
                     Container(
                       height: 240,
                       decoration: BoxDecoration(
@@ -133,7 +128,6 @@ Widget _buildToursLoadingState() {
                         ),
                       ),
                     ),
-                    // Content placeholder
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(20),
@@ -189,8 +183,6 @@ Widget _buildToursLoadingState() {
     ),
   );
 }
-
-// Error state
 Widget _buildToursErrorState(String error) {
   return Container(
     height: 300,
@@ -234,7 +226,6 @@ Widget _buildToursErrorState(String error) {
   );
 }
 
-// Empty state
 Widget _buildToursEmptyState() {
   return Container(
     height: 300,
@@ -281,7 +272,6 @@ Widget _buildToursEmptyState() {
   );
 }
 
-// Tours content when data is available
 Widget _buildToursContent(BuildContext context, List<dynamic> events) {
   return SizedBox(
     height: 460,
@@ -306,11 +296,9 @@ Widget _buildToursContent(BuildContext context, List<dynamic> events) {
   );
 }
 
-// Enhanced tour card with glassmorphism
 Widget buildUpcomingTourCard(BuildContext context, dynamic tour) {
   return GestureDetector(
     onTap: () {
-      // Navigate to tour details
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => TourDetailsPage(tour: tour)),
@@ -332,10 +320,7 @@ Widget buildUpcomingTourCard(BuildContext context, dynamic tour) {
         borderRadius: BorderRadius.circular(24),
         child: Stack(
           children: [
-            // Background image
             Positioned.fill(child: _buildTourImage(tour)),
-
-            // Gradient overlay
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
@@ -352,8 +337,6 @@ Widget buildUpcomingTourCard(BuildContext context, dynamic tour) {
                 ),
               ),
             ),
-
-            // Popular badge
             if (_isPopularTour(tour))
               Positioned(
                 top: 16,
@@ -381,8 +364,6 @@ Widget buildUpcomingTourCard(BuildContext context, dynamic tour) {
                   ),
                 ),
               ),
-
-            // Content section with glassmorphism
             Positioned(
               bottom: 0,
               left: 0,
@@ -409,11 +390,8 @@ Widget buildUpcomingTourCard(BuildContext context, dynamic tour) {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Duration and location
                         _buildTourMetadata(tour),
                         const SizedBox(height: 12),
-
-                        // Title
                         Text(
                           _getTourTitle(tour),
                           style: GoogleFonts.poppins(
@@ -426,8 +404,6 @@ Widget buildUpcomingTourCard(BuildContext context, dynamic tour) {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 8),
-
-                        // Description
                         Text(
                           _getTourDescription(tour),
                           style: GoogleFonts.poppins(
@@ -439,8 +415,6 @@ Widget buildUpcomingTourCard(BuildContext context, dynamic tour) {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 16),
-
-                        // Price and book button
                         _buildTourActions(context, tour),
                       ],
                     ),
@@ -455,7 +429,6 @@ Widget buildUpcomingTourCard(BuildContext context, dynamic tour) {
   );
 }
 
-// Helper function to build tour image
 Widget _buildTourImage(dynamic tour) {
   final imageUrl = _getTourImageUrl(tour);
 
@@ -472,7 +445,6 @@ Widget _buildTourImage(dynamic tour) {
   }
 }
 
-// Default tour background
 Widget _buildDefaultTourBackground() {
   return Container(
     decoration: BoxDecoration(
@@ -492,7 +464,6 @@ Widget _buildDefaultTourBackground() {
   );
 }
 
-// Helper function to build tour metadata
 Widget _buildTourMetadata(dynamic tour) {
   final duration = _getTourDuration(tour);
   final location = _getTourLocation(tour);
@@ -540,7 +511,6 @@ Widget _buildTourMetadata(dynamic tour) {
   );
 }
 
-// Helper function to build tour actions
 Widget _buildTourActions(BuildContext context, dynamic tour) {
   final price = _getTourPrice(tour);
 
@@ -602,7 +572,6 @@ Widget _buildTourActions(BuildContext context, dynamic tour) {
   );
 }
 
-// Helper functions to safely extract tour data
 String? _getTourImageUrl(dynamic tour) {
   if (tour == null) return null;
   return tour.imageUrl?.toString() ?? tour.image?.toString();
@@ -614,8 +583,9 @@ String _getTourTitle(dynamic tour) {
 }
 
 String _getTourDescription(dynamic tour) {
-  if (tour == null)
+  if (tour == null) {
     return "Discover amazing places and create unforgettable memories.";
+  }
   return tour.description?.toString() ??
       tour.summary?.toString() ??
       "Discover amazing places and create unforgettable memories.";
@@ -643,9 +613,7 @@ bool _isPopularTour(dynamic tour) {
       tour.popular == true;
 }
 
-// Handle tour booking
 void _handleTourBooking(BuildContext context, dynamic tour) {
-  // Add your booking logic here
   showDialog(
     context: context,
     builder:
@@ -666,7 +634,6 @@ void _handleTourBooking(BuildContext context, dynamic tour) {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                // Add actual booking logic here
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -684,11 +651,10 @@ void _handleTourBooking(BuildContext context, dynamic tour) {
   );
 }
 
-// Placeholder for tour details page
 class TourDetailsPage extends StatelessWidget {
   final dynamic tour;
 
-  const TourDetailsPage({Key? key, required this.tour}) : super(key: key);
+  const TourDetailsPage({super.key, required this.tour});
 
   @override
   Widget build(BuildContext context) {

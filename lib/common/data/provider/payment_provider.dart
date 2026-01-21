@@ -5,8 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shetravels/common/data/repository/payment_repository.dart';
 
 
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final paymentNotifierProvider = ChangeNotifierProvider<PaymentNotifier>((ref) {
   final repo = ref.read(paymentRepositoryProvider);
@@ -28,7 +26,7 @@ class PaymentNotifier extends ChangeNotifier {
   String? _errorMessage;
   String? _currentBookingId;
   Map<String, dynamic>? _currentBooking;
-  String? _currentBookingSessionId; // ADD THIS LINE
+  String? _currentBookingSessionId; 
 
   PaymentStatus get status => _status;
   String? get errorMessage => _errorMessage;
@@ -41,7 +39,6 @@ class PaymentNotifier extends ChangeNotifier {
 
   PaymentNotifier(this._repository);
 
-  // REFACTORED pay method
   Future<void> pay({
     required BuildContext context,
     required int amount,
@@ -52,8 +49,6 @@ class PaymentNotifier extends ChangeNotifier {
       _errorMessage = null;
       _currentBookingId = null;
       _currentBooking = null;
-
-      // Show initial progress message
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -78,8 +73,6 @@ class PaymentNotifier extends ChangeNotifier {
           ),
         );
       }
-
-      // Step 1: Create booking in Firebase first
       final bookingId = await _repository.createBooking(
         eventName: eventName,
         amount: amount,
@@ -88,8 +81,6 @@ class PaymentNotifier extends ChangeNotifier {
       
       _currentBookingId = bookingId;
       debugPrint('📝 Booking created: $bookingId');
-
-      // Step 2: Handle payment with Stripe
       await _repository.handlePayment(
         amount: amount,
         eventName: eventName,
@@ -99,8 +90,6 @@ class PaymentNotifier extends ChangeNotifier {
           'eventName': eventName,
         },
       );
-
-      // For mobile payments, listen to booking status changes
       if (!kIsWeb) {
         _listenToBookingStatus(bookingId);
         
@@ -113,7 +102,6 @@ class PaymentNotifier extends ChangeNotifier {
           );
         }
       } else {
-        // For web, user will be redirected to Stripe Checkout
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -174,7 +162,6 @@ class PaymentNotifier extends ChangeNotifier {
               _errorMessage = 'Payment was cancelled';
               break;
             case 'pending':
-              // Keep processing status
               if (_status != PaymentStatus.processing) {
                 _setStatus(PaymentStatus.processing);
               }

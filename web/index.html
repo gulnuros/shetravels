@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -27,35 +28,16 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png" />
 
   <title>shetravels</title>
   <link rel="manifest" href="manifest.json">
-
-
-
-  <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
-  
-
-  const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: "",
-  measurementId: "",
-  };
-
-   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
 </head>
+
 <body>
+  <script src="config.js"></script>
   <script src="flutter_bootstrap.js" async></script>
-    <!-- <script>
+  <!-- <script>
     window.addEventListener("load", function (ev) {
       // Download main.dart.js
       _flutter.loader.loadEntrypoint({
@@ -74,16 +56,13 @@
 
 
 
-<script>
-  window.addEventListener('load', function(ev) {
-    _flutter.loader.loadEntrypoint({
-      serviceWorker: {
-        serviceWorkerVersion: serviceWorkerVersion,
-      }
+  <script>
+    window.addEventListener('load', function (ev) {
+      _flutter.loader.load();
     });
-  });
-</script>
+  </script>
 
 
 </body>
+
 </html>

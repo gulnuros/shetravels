@@ -87,6 +87,7 @@ flutter:
 
   assets:
     - assets/
+    - assets/.env 
     - assets/data/local_events.json
     - assets/data/memories.json
     - assets/data/

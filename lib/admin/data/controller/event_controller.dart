@@ -98,9 +98,6 @@ class EventDashboardNotifier extends ChangeNotifier {
   }
 
 
-
-
-// 🆕 Updated addEvent method to include creator info
 Future<void> addEvent(Event event, BuildContext context) async {
   if (currentUser == null) {
     showErrorSnackBar('Please authenticate first', context);
@@ -116,7 +113,7 @@ Future<void> addEvent(Event event, BuildContext context) async {
       location: event.location,
       price: event.price,
       availableSlots: event.availableSlots,
-      subscribedUsers: [], // Start with empty list
+      subscribedUsers: [], 
       createdAt: DateTime.now(),
       createdBy: currentUser!.uid,
     );
@@ -131,24 +128,6 @@ Future<void> addEvent(Event event, BuildContext context) async {
 }
 
 
-
-  // Future<void> addEvent(Event event, BuildContext context) async {
-  //   if (currentUser == null) {
-  //     showErrorSnackBar('Please authenticate first', context);
-  //     return;
-  //   }
-
-  //   try {
-  //     await _eventsRef.add(event.toJson());
-  //     await loadEvents(context);
-  //     showSuccessSnackBar('Event added successfully', context);
-  //   } catch (e) {
-  //     debugPrint('Add event error: $e');
-  //     showErrorSnackBar('Failed to add event: $e', context);
-  //   }
-  // }
-
-  // NEW: Edit event method
   Future<void> editEvent(Event event, BuildContext context) async {
     if (currentUser == null) {
       showErrorSnackBar('Please authenticate first', context);
@@ -295,7 +274,6 @@ Future<void> addEvent(Event event, BuildContext context) async {
       },
     );
   }
-  // Add these methods to your EventManagerDashboard class
 
 Future<void> subscribeToEvent(String eventId, BuildContext context) async {
   if (currentUser == null) {
@@ -312,19 +290,16 @@ Future<void> subscribeToEvent(String eventId, BuildContext context) async {
 
     final event = Event.fromFirestore(eventDoc);
     
-    // Check if user is already subscribed
     if (event.subscribedUsers?.contains(currentUser!.uid) == true) {
       showErrorSnackBar('You are already subscribed to this event', context);
       return;
     }
     
-    // Check if slots are available
     if (event.isSoldOut) {
       showErrorSnackBar('Sorry, this event is sold out', context);
       return;
     }
 
-    // Add user to subscribers list
     await _eventsRef.doc(eventId).update({
       'subscribedUsers': FieldValue.arrayUnion([currentUser!.uid]),
     });
@@ -345,7 +320,6 @@ Future<void> unsubscribeFromEvent(String eventId, BuildContext context) async {
   }
 
   try {
-    // Remove user from subscribers list
     await _eventsRef.doc(eventId).update({
       'subscribedUsers': FieldValue.arrayRemove([currentUser!.uid]),
     });
@@ -360,13 +334,11 @@ Future<void> unsubscribeFromEvent(String eventId, BuildContext context) async {
 }
 
 
-// 🆕 Check if current user is subscribed to an event
 bool isUserSubscribed(Event event) {
   if (currentUser == null) return false;
   return event.subscribedUsers?.contains(currentUser!.uid) ?? false;
 }
 
-// 🆕 Get subscribed events for current user
 List<Event> getUserSubscribedEvents() {
   if (currentUser == null) return [];
   return events.where((event) => isUserSubscribed(event)).toList();
