@@ -4,12 +4,11 @@ import 'package:flutter_stripe/flutter_stripe.dart' as stp;
 import 'package:shetravels/utils/route.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'dart:html' as html;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Get config from window object (set by config.js)
+  // Get config from environment variables or other secure storage
   final firebaseConfig = _getFirebaseConfig();
   final stripeKey = _getStripeKey();
   
@@ -22,23 +21,21 @@ void main() async {
 }
 
 FirebaseOptions _getFirebaseConfig() {
-  final config = html.window as dynamic;
-  final fbConfig = config.firebaseConfig;
-  
+  // Replace with a method to fetch Firebase config without using dart:html
   return FirebaseOptions(
-    apiKey: fbConfig['apiKey'] ?? '',
-    authDomain: fbConfig['authDomain'] ?? '',
-    projectId: fbConfig['projectId'] ?? '',
-    storageBucket: fbConfig['storageBucket'] ?? '',
-    messagingSenderId: fbConfig['messagingSenderId'] ?? '',
-    appId: fbConfig['appId'] ?? '',
-    measurementId: fbConfig['measurementId'],
+    apiKey: const String.fromEnvironment('FIREBASE_API_KEY', defaultValue: ''),
+    authDomain: const String.fromEnvironment('FIREBASE_AUTH_DOMAIN', defaultValue: ''),
+    projectId: const String.fromEnvironment('FIREBASE_PROJECT_ID', defaultValue: ''),
+    storageBucket: const String.fromEnvironment('FIREBASE_STORAGE_BUCKET', defaultValue: ''),
+    messagingSenderId: const String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID', defaultValue: ''),
+    appId: const String.fromEnvironment('FIREBASE_APP_ID', defaultValue: ''),
+    measurementId: const String.fromEnvironment('FIREBASE_MEASUREMENT_ID', defaultValue: ''),
   );
 }
 
 String _getStripeKey() {
-  final config = html.window as dynamic;
-  return config.stripePublishableKey ?? '';
+  // Replace with a method to fetch Stripe key without using dart:html
+  return const String.fromEnvironment('STRIPE_PUBLISHABLE_KEY', defaultValue: '');
 }
 
 class SheTravelApp extends StatefulWidget {
