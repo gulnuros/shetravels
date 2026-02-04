@@ -43,5 +43,6 @@ app.*.map.json
 /android/app/release
 
 flutter/
-build/
-build/
+# Ignore the entire build directory except for build/web
+/build/*
+!/build/web
