@@ -1,0 +1,7 @@
+# Exclude everything except the build output
+*
+!build/web
+
+### 4. **Ensure `.vercelignore` is Configured**
+
+Make sure your `.vercelignore` file excludes unnecessary files and includes only the `build/web` directory:

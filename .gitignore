@@ -47,3 +47,4 @@ flutter/
 # Ignore the entire build directory except for build/web
 /build/*
 !/build/web
+.vercel
